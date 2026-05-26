@@ -2,6 +2,8 @@
 /rule-engine-js-ui.code-workspace
 
 RuleDesigner/node_modules/
+RuleDesigner/Dist/
+
 RuleDesigner/.vscode/*
 !RuleDesigner/.vscode/launch.json
 
