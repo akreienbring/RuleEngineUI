@@ -25,7 +25,7 @@ RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engin
 
 ## Features of the Full UI
 
-- **Complex rules**<br/>  
+- **Complex rules**  
   Here it is possible to create subrules of any depth. Allows also for more than one operator per property.
 
 - **Rule testing while building**<br/>
