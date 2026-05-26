@@ -34,7 +34,9 @@ RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engin
 ## What to use RuleDesigner for?
 
 - **Implementation examples**<br/>
-  It's recommendet to use RuleDesigner for learning how to implement RuleEngineUIJS. Examples of objects and schemas are provided, ready to start with the simple- and the full UI. There's also a 'playground' that demonstrates the usage of the stateful engine of [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js/blob/production/docs/essentials/stateful-engine.mdx)
+  It's recommended to use RuleDesigner for learning how to implement RuleEngineUIJS. Examples of objects and schemas are provided, ready to start with the simple- and the full UI. There's also a 'playground' that demonstrates the usage of the stateful engine of [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js/blob/production/docs/essentials/stateful-engine.mdx)
+
+  Previously stored rules can be edited and applied to a test object. RuleDesingner also uses a custom interface for executing commands when a given rule was evaluated with a possitive result against an object.
 
 ## Screenshots
 
