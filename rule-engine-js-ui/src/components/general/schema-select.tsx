@@ -3,6 +3,7 @@
 */
 import { type JSX } from "react";
 import { TextField, MenuItem } from "@mui/material";
+import { createUUID } from "@src/components/utils/general";
 
 interface SchemaSelectProps {
   schemas: InputSchema[];
@@ -32,7 +33,7 @@ export default function SchemaSelect({
       sx={{ width: 200, zIndex: "tooltip" }}
     >
       {schemas.map((schema, index) => (
-        <MenuItem key={`schema_${index}`} value={index}>
+        <MenuItem key={createUUID()} value={index}>
           {schema.name}
         </MenuItem>
       ))}

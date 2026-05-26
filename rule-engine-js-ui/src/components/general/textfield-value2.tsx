@@ -4,6 +4,7 @@
 */
 import { type JSX } from "react";
 import { MenuItem, TextField } from "@mui/material";
+import { createUUID } from "../utils/general";
 
 interface TextFieldValue2Props {
   property: Property;
@@ -41,6 +42,7 @@ export default function TextFieldValue2({
 }: TextFieldValue2Props): JSX.Element {
   return (
     <TextField
+      key={createUUID()}
       error={typeof property?.value2Error !== "undefined"}
       label={
         typeof property?.value2Error !== "undefined" ? property.value2Error : ""

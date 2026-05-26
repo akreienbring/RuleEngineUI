@@ -4,6 +4,7 @@
 */
 import { type JSX } from "react";
 import { MenuItem, TextField } from "@mui/material";
+import { createUUID } from "../utils/general";
 
 interface TextFieldValue1Props {
   property: Property;
@@ -39,8 +40,39 @@ export default function TextFieldValue1({
   inputWidth,
   handleValueChange,
 }: TextFieldValue1Props): JSX.Element {
+  const menueItems: JSX.Element[] = [];
+  let selectValue: string | number | boolean = property.value1;
+
+  if (property.type === "boolean") {
+    menueItems.push(<MenuItem value={true as any}>true</MenuItem>);
+    menueItems.push(<MenuItem value={false as any}>false</MenuItem>);
+  } else if (isPropertySelect) {
+    selectValue = propertyMenuItems[0];
+    menueItems.push(
+      ...propertyMenuItems.map((bufferKey) => (
+        <MenuItem key={bufferKey} value={bufferKey}>
+          {bufferKey}
+        </MenuItem>
+      )),
+    );
+  } else if (
+    typeof property.enum !== "undefined" &&
+    (property.operators[0] === "changedFrom" ||
+      property.operators[0] === "changedTo")
+  ) {
+    selectValue = property.enum[0];
+    menueItems.push(
+      ...property.enum.map((value) => (
+        <MenuItem key={value} value={value}>
+          {value}
+        </MenuItem>
+      )),
+    );
+  }
+
   return (
     <TextField
+      key={createUUID()}
       error={typeof property?.value1Error !== "undefined"}
       label={
         typeof property?.value1Error !== "undefined" ? property.value1Error : ""
@@ -48,8 +80,8 @@ export default function TextFieldValue1({
       required={property.type === "number"}
       size="small"
       variant="filled"
-      select={property.type === "boolean" || isPropertySelect}
-      value={property.value1}
+      select={menueItems.length > 0}
+      value={selectValue}
       name="value1"
       onChange={(event) =>
         handleValueChange(
@@ -65,16 +97,7 @@ export default function TextFieldValue1({
           property.operators[0] === "between" ? inputWidth / 2 - 8 : inputWidth,
       }}
     >
-      {!isPropertySelect && property.type === "boolean"
-        ? [
-            <MenuItem value={true as any}>true</MenuItem>,
-            <MenuItem value={false as any}>false</MenuItem>,
-          ]
-        : propertyMenuItems.map((bufferKey) => (
-            <MenuItem key={bufferKey} value={bufferKey}>
-              {bufferKey}
-            </MenuItem>
-          ))}
+      {menueItems.length > 0 ? menueItems : null}
     </TextField>
   );
 }

@@ -46,7 +46,8 @@ declare global {
     origOperator: Operator;
     checked: boolean;
     origChecked: boolean;
-    level?: number;
+    level: number;
+    enum?: string[] | number[];
   };
 
   export type PropertyBuffer = {
@@ -60,9 +61,15 @@ declare global {
     schemaId: number;
   };
 
+  export type JSONProperty = {
+    type?: string;
+    const?: string | number | boolean;
+    enum?: (string | number)[];
+  };
+
   export type JSONSchema = {
     type: string;
-    properties: object;
+    properties: { [key: string]: JSONProperty };
     required: string[];
   };
 

@@ -4,6 +4,7 @@
 import { type JSX } from "react";
 import { TextField, MenuItem } from "@mui/material";
 import { getOperators } from "@src/components/utils/operator-utils";
+import { createUUID } from "@src/components/utils/general";
 
 interface OperatorSelectProps {
   property: Property;
@@ -25,6 +26,7 @@ export default function OperatorSelect({
 }: OperatorSelectProps): JSX.Element {
   return (
     <TextField
+      key={createUUID()}
       size="small"
       variant="filled"
       select
@@ -33,13 +35,15 @@ export default function OperatorSelect({
       onChange={(event) =>
         handlePropOperatorChange(bufferKey, event.target.value as Operator)
       }
-      sx={{ width: 130 }}
+      sx={{ minWidth: 150, maxWidth: 150 }}
     >
-      {getOperators(property.type).map((operator, index) => (
-        <MenuItem key={`MI_${operator}_${index}`} value={operator}>
-          {operator}
-        </MenuItem>
-      ))}
+      {getOperators(property.type, typeof property.enum !== "undefined").map(
+        (operator) => (
+          <MenuItem key={createUUID()} value={operator}>
+            {operator}
+          </MenuItem>
+        ),
+      )}
     </TextField>
   );
 }

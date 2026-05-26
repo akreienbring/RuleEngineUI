@@ -1,5 +1,6 @@
 import { JSX } from "react";
 import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import { createUUID } from "@src/components/utils/general";
 
 interface AddEmptyRuleProps {
   handleAddEmptyRule: (operator: Operator) => void;
@@ -35,7 +36,7 @@ export default function AddEmptyRule({
   return (
     <List dense disablePadding sx={{ pt: 0, minWidth: 400 }}>
       {options.map((option, index) => (
-        <ListItem disablePadding key={`RuleOption_${index}`}>
+        <ListItem disablePadding key={createUUID()}>
           <ListItemButton
             onClick={() => handleAddEmptyRule(option.value as Operator)}
           >

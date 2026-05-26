@@ -6,7 +6,7 @@ import {
   ListItemButton,
 } from "@mui/material";
 import { DataObject, ExpandLess, ExpandMore } from "@mui/icons-material";
-
+import { createUUID } from "../utils/general";
 interface ObjectItemProps {
   level: number;
   indent: number;
@@ -24,18 +24,22 @@ export default function ObjectItem({
 }: ObjectItemProps): JSX.Element {
   return (
     <ListItem
-      key={`LI1_${level}`}
+      key={createUUID()}
       sx={{
         pl: level * indent,
-        mb: 0.5,
+        mt: isExpanded ? -2 : 2,
         width: "fit-content",
       }}
     >
-      <ListItemButton onClick={() => handleExpandObject(level)}>
-        <ListItemIcon sx={{ ml: -1.3 }}>
+      <ListItemButton
+        key={createUUID()}
+        onClick={() => handleExpandObject(level)}
+      >
+        <ListItemIcon key={createUUID()} sx={{ ml: -1.3 }}>
           <DataObject />
         </ListItemIcon>
         <ListItemText
+          key={createUUID()}
           primary={path.substring(path.lastIndexOf(".") + 1, path.length)}
         />
         {level > 0 && (isExpanded ? <ExpandLess /> : <ExpandMore />)}

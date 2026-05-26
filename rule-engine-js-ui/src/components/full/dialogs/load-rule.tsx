@@ -18,11 +18,7 @@ interface LoadRuleProps {
   isOpen: boolean;
   onClose: () => void;
   archivedRules: ArchivedRule[];
-  handleLoadArchiveRule: (
-    rule: RuleExpression,
-    operator: Operator,
-    schemaIndex: number,
-  ) => void;
+  handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
 
 /**
@@ -47,7 +43,6 @@ export default function LoadRule({
         <Box sx={{ m: 2, overflow: "auto" }}>
           <RulesTable
             archivedRules={archivedRules}
-            schemaIndex={null}
             handleLoadArchiveRule={handleLoadArchiveRule}
           />
         </Box>{" "}

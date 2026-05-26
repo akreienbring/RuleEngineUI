@@ -201,7 +201,11 @@ export default function RuleEngineJSUI({
           />
         </ErrorBoundary>
       )}
-      <Dialog open={ruleToSave !== null} onClose={handleClose}>
+      <Dialog
+        open={ruleToSave !== null}
+        onClose={handleClose}
+        disableRestoreFocus
+      >
         <DialogTitle>Save Rule</DialogTitle>
         <DialogContent>
           <DialogContentText>

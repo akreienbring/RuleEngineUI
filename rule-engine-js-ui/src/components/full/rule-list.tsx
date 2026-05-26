@@ -8,6 +8,7 @@ import { type JSX, useState } from "react";
 import { RuleExpression } from "rule-engine-js";
 import { List, ListItem, ListItemText } from "@mui/material";
 import RuleListToolbar from "./rule-list-toolbar";
+import { createUUID } from "../utils/general";
 
 interface RuleListProps {
   topRule: RuleExpression;
@@ -108,11 +109,13 @@ export default function RuleList({
 
     elements.push(
       <ListItem
-        key={`Toplevel_RLI1_${ruleLevel}_${ruleIndex}`}
+        key={createUUID()}
         sx={{
           p: 0,
           m: 0,
           height: "fit-content",
+          border: 2,
+          borderColor: isValid ? "success.light" : "error.light",
           bgcolor:
             selectedRule.uuid === uuid ||
             (ruleLevel === 0 && !selectedRule.uuid)
@@ -137,8 +140,8 @@ export default function RuleList({
       </ListItem>,
     );
 
-    operators.forEach((operator, index) => {
-      Object.entries(operator).forEach(([operatorName, operators], index) => {
+    operators.forEach((operator) => {
+      Object.entries(operator).forEach(([operatorName, operators]) => {
         if (operatorName !== "subrule") {
           let secondary = operators[0];
           if (operators[1] === "") {
@@ -150,7 +153,7 @@ export default function RuleList({
           }
           elements.push(
             <ListItem
-              key={`RLI1_${ruleLevel}_${operatorName}_${operators[0]}_${operators[1]}_${index}`}
+              key={createUUID()}
               disablePadding
               sx={{
                 display: isExpanded ? "block" : "none",
@@ -161,7 +164,7 @@ export default function RuleList({
               }}
             >
               <ListItemText
-                key={`RLIT_${ruleLevel}_${operatorName}_${operators[0]}_${operators[1]}_${index}`}
+                key={createUUID()}
                 primary={operatorName}
                 secondary={secondary}
                 sx={{ minWidth: 100, pl: ruleLevel }}
@@ -189,12 +192,7 @@ export default function RuleList({
     // recursion for every sub object in this level
     subOperators.forEach((subOperator) => {
       elements.push(
-        <List
-          component="div"
-          key={`L_${path}_${ruleIndex}`}
-          dense
-          disablePadding
-        >
+        <List component="div" key={createUUID()} dense disablePadding>
           {createList(
             subOperator.operators,
             subOperator.path,

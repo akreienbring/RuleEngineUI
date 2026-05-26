@@ -5,71 +5,41 @@
   that contains information over the operators used for every property that is contained in the JSON schema AND the given test object.
   Hence the initial rule, also created by this component, is valid, regarding the test object.
 */
-import { type JSX, useState, useEffect } from "react";
+import { type JSX, useState } from "react";
 import { List } from "@mui/material";
 import ObjectItem from "./object-item";
-import PropertyItem from "./proptery-item";
-import { RuleExpression } from "rule-engine-js";
-import { buildRule, getValueByPath } from "@src/components/utils/rule-utils-js";
+import PropertyItem from "./property-item";
 import { getOperatorByType } from "@src/components/utils/operator-utils";
 import { validateProperty } from "@src/components/utils/property-utils";
+import { createUUID } from "../utils/general";
 
 interface PropertyListProps {
-  schemas: InputSchema[];
-  schemaIndex: number;
   testObj: object;
   maxLevel?: number;
   properties: PropertyBuffer;
-  selectedRule: RuleIndex;
   updateProperties: (properties: PropertyBuffer) => void;
-  handleSchemaChange: (rule: RuleExpression) => void;
-  updateSelectedRule: (
-    newRule: RuleExpression,
-    newTopOperator?: Operator,
-  ) => void;
 }
 
 /**
  * Based on the given input parameters this component not only builds the HTML elements, but also the Properties and an initial rule that is
  * valid regarding the given test object.
  * @param {PropertyListProps} props
- * @param {InputSchema[]} props.schemas - A list of JSON schemas to build a rule for. Schemas must be provided by the user of the rule designer.
- * @param {schemaIndex} props.schemaIndex - The index of the currently selected schema
  * @param {object} props.testObj - An object used to validate the created rule with. This helps visually testing the rule while it is created.
  * @param {number} props.maxLevel - If provided, the JSON schema is only analized up to the given
  * @param {Function} props.properties - The current property buffer
- * @param {RuleIndex} props.selectedRule - The currently select (sub-) rule. Needed to apply possible action (like changing values or adding operators)
  * @param {Function} props.updateProperties - Called every time when the property buffer was changed.
- * @param {Function} props.handleSchemaChange - Called when the JSON schema was changed.
- * @param {Function} props.updateSelectedRule - Called when the currently selected rule (and, or, not) needs to be updated.
  * @returns {JSX.Element} The List with all properties from a JSON schema.
  */
 export default function PropertyList({
-  schemas,
-  schemaIndex,
   testObj,
   maxLevel,
   properties,
-  selectedRule,
   updateProperties,
-  handleSchemaChange,
-  updateSelectedRule,
 }: PropertyListProps): JSX.Element {
   const [expandedObjects, setExpandedObjects] = useState<boolean[]>([]);
 
-  let elements: JSX.Element[] = [];
-  let propCount = -1;
-  const createdProperties: PropertyBuffer = {};
+  const elements: JSX.Element[] = [];
   const createdExpanded: boolean[] = [];
-
-  useEffect(() => {
-    updateProperties(createdProperties);
-    const createdRule: RuleExpression = buildRule(
-      createdProperties,
-      "and",
-    ) as RuleExpression;
-    handleSchemaChange(createdRule);
-  }, [schemaIndex]);
 
   /**
    * Expands / Collapses an Object level of the property list
@@ -100,13 +70,6 @@ export default function PropertyList({
       property.value2 = property.value2 ? property.value2 : "";
     }
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -119,17 +82,15 @@ export default function PropertyList({
 
     // Insert the new operator at the beginning of the properties operator list
     property.operators.unshift(
-      getOperatorByType(property.type, property.value1, property.operators),
+      getOperatorByType(
+        property.type,
+        typeof property.enum !== "undefined",
+        property.operators,
+        property.value1,
+      ),
     );
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -144,13 +105,6 @@ export default function PropertyList({
     property.operators.splice(operatorIndex, 1);
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -192,13 +146,6 @@ export default function PropertyList({
     }
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -211,13 +158,6 @@ export default function PropertyList({
     property.checked = !property.checked;
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -231,13 +171,6 @@ export default function PropertyList({
     property.operators[0] = property.origOperator;
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
@@ -256,82 +189,49 @@ export default function PropertyList({
     property.operators[index] = operator;
 
     updateProperties(newProperties);
-
-    const newRule = buildRule(
-      newProperties,
-      selectedRule.operator,
-    ) as RuleExpression;
-
-    updateSelectedRule(newRule);
   };
 
   /**
-   * The main / recursive function that build the HTML elements for all properties of the selected JSON schema.
-   * - It also builds the initial rule by utilizing the provided test object.
-   * - Builds the property buffer with all detected properties of the JSON schema.
-   * @param {object} obj - An object or sub object described by the JSON schema
-   * @param {string} path - Is build during the recursion to later identify a property in the property buffer.
-   * @param {number} level - The level of recursion. Used to indent properties in the created list
-   * @returns null But fills the list of HTML elements with the MUI components.
+   * Builds the HTML elements for all properties of the selected JSON schema.
+   * @param {PropertyBuffer} properties - The current property buffer containing all properties of the JSON schema
+   * @returns nothing - But fills the list of HTML elements with the MUI components.
    */
-  const createList = (obj: object, path: string, level: number) => {
-    if (typeof maxLevel !== "undefined" && level >= maxLevel) return elements;
-    createdExpanded.push(true);
-    const isExpanded =
-      typeof expandedObjects[level] === "boolean"
-        ? expandedObjects[level]
-        : true;
-    const indent = 3;
-    const subObjects: { path: string; propName: string; obj: object }[] = [];
+  const createList = (properties: PropertyBuffer) => {
+    let lastLevel = -1;
+    Object.entries(properties).forEach(([bufferKey, property]) => {
+      if (typeof maxLevel !== "undefined" && property.level >= maxLevel)
+        return elements;
 
-    elements.push(
-      <ObjectItem
-        key={`OI_${level}`}
-        level={level}
-        indent={indent}
-        path={path}
-        isExpanded={isExpanded}
-        handleExpandObject={handleExpandObject}
-      />,
-    );
-    Object.entries(obj).forEach(([propName, propInfo]) => {
-      if (!propInfo.type || propInfo.type !== "object") {
-        propCount++;
-        const bufferKey = path ? `${path}.${propName}` : propName;
-        const testValue: unknown = getValueByPath(testObj, bufferKey);
+      createdExpanded.push(true);
+      const isExpanded =
+        typeof expandedObjects[property.level] === "boolean"
+          ? expandedObjects[property.level]
+          : true;
+      const indent = 3;
 
-        //convert 'integer' from JSON Schema to 'number'
-        const propType: PropertyType = !propInfo.type
-          ? "null"
-          : propInfo.type === "integer"
-            ? "number"
-            : propInfo.type;
+      let isObject = false;
+      if (property.level === lastLevel + 1) {
+        isObject = true;
+        lastLevel++;
+      }
 
-        const operator: Operator = getOperatorByType(propType, [], testValue);
-
-        /*
-          Create the initial property from the testValue.
-          Don't check array types as the evaluation of the rule will fail for arrays
-        */
-        const property: Property = {
-          key: propName,
-          origValue1: testValue ? testValue : "",
-          value1: testValue ? testValue : "",
-          value2: "",
-          type: propType,
-          operators: [operator],
-          origOperator: operator,
-          checked: typeof testValue !== "undefined" && propType !== "array",
-          origChecked: typeof testValue !== "undefined" && propType !== "array",
-        };
-        createdProperties[bufferKey] = property;
-
-        elements.push(
+      elements.push(
+        <>
+          {isObject && (
+            <ObjectItem
+              key={createUUID()}
+              level={property.level}
+              indent={indent}
+              path={property.level > 0 ? bufferKey : ""}
+              isExpanded={isExpanded}
+              handleExpandObject={handleExpandObject}
+            />
+          )}
           <PropertyItem
-            key={`PI_${propCount}`}
+            key={createUUID()}
             isExpanded={isExpanded}
-            level={level}
-            propName={propName}
+            level={property.level}
+            propName={property.key}
             properties={properties}
             bufferKey={bufferKey}
             handlePropCheck={handlePropCheck}
@@ -341,32 +241,16 @@ export default function PropertyList({
             handleAddOperator={handleAddOperator}
             handleResetProperty={handleResetProperty}
             handleSelectOperator={handleSelectOperator}
-          />,
-        );
-      } else {
-        subObjects.push({ path, propName, obj: propInfo.properties });
-      }
-    }); // forEach level property
-    // recursion for every sub object in this level
-    subObjects.forEach((subObject) => {
-      const newPath = !subObject.path
-        ? subObject.propName
-        : `${path}.${subObject.propName}`;
-
-      elements = elements.concat(
-        <List component="div" key={`L_${propCount}`} dense disablePadding>
-          {createList(subObject.obj, newPath, level + 1)}
-        </List>,
+          />
+        </>,
       );
     });
-
-    return null;
   };
 
-  createList(schemas[schemaIndex].schema.properties, "", 0);
-
+  //createList(schemas[schemaIndex].schema.properties, "", 0);
+  createList(properties);
   return (
-    <List dense disablePadding sx={{ p: 1 }}>
+    <List dense disablePadding sx={{ p: -1 }}>
       {elements}
     </List>
   );

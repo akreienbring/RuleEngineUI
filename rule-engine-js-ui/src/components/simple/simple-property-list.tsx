@@ -19,6 +19,7 @@ import OperatorSelect from "../general/operator-select";
 import { validateProperty } from "@src/components/utils/property-utils";
 import TextFieldValue1 from "../general/textfield-value1";
 import TextFieldValue2 from "../general/textfield-value2";
+import { createUUID } from "@src/components/utils/general";
 
 interface SimplePropertyListProps {
   properties: PropertyBuffer;
@@ -114,7 +115,7 @@ export default function SimplePropertyList({
 
   /**
    * Builds the HTML elements for all properties of the selected JSON schema.
-   * @param {object} properties - An object or sub object described by the JSON schema
+   * @param {PropertyBuffer} properties - The current property buffer containing all properties of the JSON schema
    * @returns null But fills the list of HTML elements with the MUI components.
    */
   const createList = (properties: PropertyBuffer) => {
@@ -126,12 +127,12 @@ export default function SimplePropertyList({
 
       elements.push(
         <Stack
-          key={`LIStack_${propCount}`}
+          key={createUUID()}
           direction="row"
           sx={{ mt: -2, mb: -2, pt: -2, pb: -2 }}
         >
           <ListItem
-            key={`LIProp_${propCount}`}
+            key={createUUID()}
             dense
             disablePadding
             sx={{
@@ -142,7 +143,7 @@ export default function SimplePropertyList({
           >
             <ListItemButton onClick={() => handlePropCheck(bufferKey)}>
               <Checkbox
-                key={`CHK_${propCount}`}
+                key={createUUID()}
                 edge="start"
                 checked={
                   typeof property.checked !== "undefined"
@@ -200,10 +201,14 @@ export default function SimplePropertyList({
           </Stack>
         </Stack>,
       );
-    }); // forEach level property
+    });
   };
 
   createList(properties);
 
-  return <List>{elements}</List>;
+  return (
+    <List dense disablePadding>
+      {elements}
+    </List>
+  );
 }

@@ -68,8 +68,8 @@ export default function SimpleRule({
   );
   const [properties, setProperties] = useState<PropertyBuffer>(
     typeof archivedRule !== "undefined"
-      ? createProperties(schemas[schemaIndex].schema, archivedRule)
-      : createProperties(schemas[schemaIndex].schema),
+      ? createProperties(schemas[schemaIndex].schema, null, archivedRule)
+      : createProperties(schemas[schemaIndex].schema, null, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>(
     typeof archivedRule !== "undefined"
@@ -108,7 +108,9 @@ export default function SimpleRule({
       if (typeof archivedRule === "undefined") {
         console.log(`Setting states for a new rule`);
         setSchemaIndex(0);
-        setProperties(createProperties(schemas[schemaIndex].schema));
+        setProperties(
+          createProperties(schemas[schemaIndex].schema, null, null),
+        );
         setRuleName("");
         setRuleDescription("");
         setIsPropertiesValid(false);
@@ -123,6 +125,7 @@ export default function SimpleRule({
         setProperties(
           createProperties(
             schemas[archivedRule.schemaIndex].schema,
+            null,
             archivedRule,
           ),
         );
@@ -150,7 +153,7 @@ export default function SimpleRule({
   const onClose = () => {
     console.log("Resetting states");
     setSchemaIndex(0);
-    setProperties(createProperties(schemas[schemaIndex].schema));
+    setProperties(createProperties(schemas[schemaIndex].schema, null, null));
     setRuleName("");
     setRuleDescription("");
     setIsPropertiesValid(false);
@@ -227,7 +230,7 @@ export default function SimpleRule({
    */
   const handleSchemaSelect = (schemaIndex: number) => {
     setSchemaIndex(schemaIndex);
-    setProperties(createProperties(schemas[schemaIndex].schema));
+    setProperties(createProperties(schemas[schemaIndex].schema, null, null));
     setTopRule({
       and: [],
     });
@@ -243,7 +246,7 @@ export default function SimpleRule({
     Object.values(properties).forEach((property) => {
       if (property.checked) {
         if (property.checked) {
-          validateProperty(property, property.value1.toString());
+          validateProperty(property, property.value1);
 
           if (
             typeof property.value1Error !== "undefined" ||
@@ -319,7 +322,12 @@ export default function SimpleRule({
   }
 
   return (
-    <Dialog open={isOpenRule} onClose={onClose} maxWidth="md">
+    <Dialog
+      open={isOpenRule}
+      onClose={onClose}
+      maxWidth="md"
+      disableRestoreFocus
+    >
       <DialogTitle>
         {typeof archivedRule !== "undefined" ? "Edit" : "Create"} Rule
       </DialogTitle>
@@ -329,15 +337,17 @@ export default function SimpleRule({
             <Typography component="span">What is the Trigger?</Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <SchemaSelect
-              schemas={schemas}
-              schemaIndex={schemaIndex}
-              handleSchemaSelect={handleSchemaSelect}
-            />
-            <SimplePropertyList
-              properties={properties}
-              updateProperties={updateProperties}
-            />
+            <Stack spacing={2}>
+              <SchemaSelect
+                schemas={schemas}
+                schemaIndex={schemaIndex}
+                handleSchemaSelect={handleSchemaSelect}
+              />
+              <SimplePropertyList
+                properties={properties}
+                updateProperties={updateProperties}
+              />
+            </Stack>
           </AccordionDetails>
         </Accordion>
         <Accordion

@@ -12,6 +12,7 @@ import {
   KeyboardRounded,
 } from "@mui/icons-material";
 import { isOriginal } from "@src/components/utils/general";
+import { getOperators } from "../utils/operator-utils";
 
 interface PropertyToolbarProps {
   property: Property;
@@ -62,7 +63,11 @@ export default function PropertyToolbar({
         <Tooltip title="Select Property">
           <span>
             <IconButton
-              disabled={isNoCompareOperator}
+              disabled={
+                isNoCompareOperator ||
+                property.type === "array" ||
+                typeof property.enum !== "undefined"
+              }
               onClick={() => handlePropertySelection(true)}
               sx={{ p: 0, m: 0, height: "fit-content" }}
             >
@@ -87,12 +92,19 @@ export default function PropertyToolbar({
         </span>
       </Tooltip>
       <Tooltip title="Add operator">
-        <IconButton
-          onClick={() => handleAddOperator(bufferKey)}
-          sx={{ p: 0, m: 0, height: "fit-content" }}
-        >
-          <AddRounded />
-        </IconButton>
+        <span>
+          <IconButton
+            disabled={
+              property.operators.length ===
+              getOperators(property.type, typeof property.enum !== "undefined")
+                .length
+            }
+            onClick={() => handleAddOperator(bufferKey)}
+            sx={{ p: 0, m: 0, height: "fit-content" }}
+          >
+            <AddRounded />
+          </IconButton>
+        </span>
       </Tooltip>
       <Tooltip title="Delete operator">
         <span>

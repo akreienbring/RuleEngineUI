@@ -6,16 +6,7 @@
 */
 import { createUUID, deepCopy } from "@src/components/utils/general";
 import { evaluateRule } from "./rule-utils-js";
-
-import {
-  createRuleHelpers,
-  createRuleEngine,
-  RuleExpression,
-  EvaluationResult,
-} from "rule-engine-js";
-
-const ruleEngine = createRuleEngine();
-const ruleHelpers = createRuleHelpers();
+import { RuleExpression, EvaluationResult } from "rule-engine-js";
 
 /**
  * Uses a recursion to transform the rule-engine.js presentation of a rule to the internal format by inserting subrules
@@ -109,13 +100,38 @@ export const replaceSubrules = (
 };
 
 /**
- * Searches a subrule of the top rule by the uuid given to the subrule when it was created. Uses a recursion to achiev this.
+ * Copies subrules from old operators to new operators. This is needed when properties are changed
+ * to maintain the subrules that are contained in the old rule operators.
+ * @param {object[]} oldOperators - The list of operators from the old rule (may contain subrules)
+ * @param {unknown[]} newOperators - The list of operators for the new rule (without subrules)
+ * @returns {unknown[]} The updated list of operators for the new rule (with subrules from the old rule)
+ */
+export const copySubrules = (
+  oldOperators: object[],
+  newOperators: unknown[],
+): unknown[] => {
+  oldOperators.forEach((operator) => {
+    Object.keys(operator).forEach((operatorName) => {
+      if (operatorName === "subrule") {
+        newOperators.push(operator);
+      }
+    });
+  });
+  return newOperators;
+};
+
+/**
+ * Searches a subrule of the top rule by the uuid given to the subrule when it was created. Uses a recursion to achieve this.
  * TODO: use the type RuleExpression[] instead of object[]
  * @param {object[]} operators - The list of operators a rule with subrules
  * @param {string} uuid - The unique Id to search for
- * @returns {RuleSearchResult} An object with information about the found rule or null if the rule was not found
+ * @returns {RuleSearchResult} An object with
+ * - operators, the operators of the found rule
+ * - operatorIndex, the index of the found rule in the top rule
+ * - subrule, the found subrule
+ * or null if the rule was not found
  */
-export const findRule = (
+export const findSubrule = (
   operators: object[],
   uuid: string,
 ): RuleSearchResult | null => {
@@ -123,12 +139,21 @@ export const findRule = (
   operators.forEach((operator, operatorIndex) => {
     Object.entries(operator)
       .filter(([operatorName, operators]) => operatorName === "subrule")
-      .forEach(([operatorName, subrule], index) => {
+      .forEach(([operatorName, subrule]) => {
         // check the subrule for the given uuid
         if (subrule.uuid === uuid) {
-          result = { operators, operatorIndex, subrule: subrule };
+          /*
+            operators are the parent operators of the found subrule
+            operatorIndex is the index of the found subrule in parent operators list
+            This way it can easily be deleeted or updated when the operator of the subrule is changed.
+          */
+          result = {
+            operators,
+            operatorIndex,
+            subrule,
+          };
         } else {
-          const foundRule = findRule(
+          const foundRule = findSubrule(
             subrule.rule[subrule.operator] as object[],
             uuid,
           );

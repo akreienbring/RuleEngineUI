@@ -5,6 +5,7 @@ import { type JSX, useState } from "react";
 import { RuleExpression } from "rule-engine-js";
 import { List, ListItem, ListItemText, ListItemIcon } from "@mui/material";
 import { AccountTreeRounded } from "@mui/icons-material";
+import { createUUID } from "../utils/general";
 
 interface SimpleRuleList {
   topRule: RuleExpression;
@@ -50,7 +51,7 @@ export default function SimpleRuleList({
 
     elements.push(
       <ListItem
-        key={`Toplevel_RLI1_${ruleLevel}_${ruleIndex}`}
+        key={createUUID()}
         sx={{
           p: 0,
           m: 0,
@@ -77,7 +78,7 @@ export default function SimpleRuleList({
           }
           elements.push(
             <ListItem
-              key={`RLI1_${ruleLevel}_${operatorName}_${operators[0]}_${operators[1]}_${index}`}
+              key={createUUID()}
               disablePadding
               sx={{
                 width: "fit-content",
@@ -87,7 +88,7 @@ export default function SimpleRuleList({
               }}
             >
               <ListItemText
-                key={`RLIT_${ruleLevel}_${operatorName}_${operators[0]}_${operators[1]}_${index}`}
+                key={createUUID()}
                 primary={operatorName}
                 secondary={secondary}
                 sx={{ minWidth: 100, pl: ruleLevel }}
@@ -113,12 +114,7 @@ export default function SimpleRuleList({
     // recursion for every sub object in this level
     subOperators.forEach((subOperator) => {
       elements.push(
-        <List
-          component="div"
-          key={`L_${path}_${ruleIndex}`}
-          dense
-          disablePadding
-        >
+        <List component="div" key={createUUID()} dense disablePadding>
           {createList(
             subOperator.operators,
             subOperator.path,

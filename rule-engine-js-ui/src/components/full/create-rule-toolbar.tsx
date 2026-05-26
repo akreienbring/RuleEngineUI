@@ -30,11 +30,7 @@ interface CreateRuleToolbarProps {
   ) => void;
   toggleShowRuleText: () => void;
   handleSaveToprule: () => void;
-  handleLoadRule: (
-    rule: RuleExpression,
-    operator: Operator,
-    schemaIndex: number,
-  ) => void;
+  handleLoadRule: (archivedRule: ArchivedRule) => void;
 }
 
 /**
@@ -80,22 +76,23 @@ export default function CreateRuleToolbar({
 
   /**
    * Closes the load rule dialog and calls the handleLoadRule function to load the selected rule.
-   * @param {RuleExpression} rule - the top that replaces the top rule
-   * @param {Operator} operator - the operator of the new top rule
-   * @param {number} schemaIndex - The index of the schema the rule was created for
+   * The rule is restored with all subrules and properties to be able to directly manipulate the loaded rule.
+   * @param {ArchivedRule} archivedRule - the archived rule to load
    */
-  const handleLoadArchiveRule = (
-    rule: RuleExpression,
-    operator: Operator,
-    schemaIndex: number,
-  ) => {
+  const handleLoadArchiveRule = (archivedRule: ArchivedRule) => {
     setIsOpen(false);
-    const subOperators = restoreSubrules(rule[operator] as object[], []);
+    const subOperators = restoreSubrules(
+      archivedRule.rule[archivedRule.operator] as object[],
+      [],
+    );
     const loadedRule: RuleExpression = {
-      [operator]: subOperators,
+      [archivedRule.operator]: subOperators,
     };
-
-    handleLoadRule(loadedRule, operator, schemaIndex);
+    const ruleToLoad: ArchivedRule = {
+      ...archivedRule,
+      rule: loadedRule,
+    };
+    handleLoadRule(ruleToLoad);
   };
 
   return (

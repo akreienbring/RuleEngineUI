@@ -8,7 +8,7 @@
   When first created the rule is valid because: Depending on the JSON schema and the test object, only valid properties and operators are selected and set.
 */
 
-import { type JSX, useState } from "react";
+import { type JSX, useState, useEffect } from "react";
 import { EvaluationResult, RuleExpression } from "rule-engine-js";
 import RuleList from "./rule-list";
 import PropertyList from "./property-list";
@@ -19,12 +19,14 @@ import { validateProperty } from "@src/components/utils/property-utils";
 import ObjectList from "./object-list";
 import BorderBox from "./border-box";
 import {
-  findRule,
+  findSubrule,
   validateRule,
   transformRule,
+  copySubrules,
 } from "@src/components/utils/rule-utils-ts";
 import { List, Box, TextField, Stack } from "@mui/material";
 import { DoNotDisturbOnRounded, VerifiedRounded } from "@mui/icons-material";
+import { createProperties } from "@src/components/utils/property-utils";
 
 interface CreateRuleProps {
   schemas: InputSchema[];
@@ -58,7 +60,9 @@ export default function CreateRule({
   prepareSaveRule,
 }: CreateRuleProps): JSX.Element {
   const [schemaIndex, setSchemaIndex] = useState(0);
-  const [properties, setProperties] = useState<PropertyBuffer>({});
+  const [properties, setProperties] = useState<PropertyBuffer>(
+    createProperties(schemas[schemaIndex].schema, testObj, null),
+  );
   const [topRule, setTopRule] = useState<RuleExpression>({
     and: [],
   });
@@ -68,11 +72,43 @@ export default function CreateRule({
     operator: "and",
   });
   const [isShowRuleText, setIsShowRuleText] = useState(false);
-  const [isTestValid, setIsTestValid] = useState(true);
-  const [isLoadedRule, setIsLoadedRule] = useState(false);
+  const [isTestValid, setIsTestValid] = useState(false);
 
+  /**
+   * When the component is first loaded, a rule is created and tested based on the initial selected JSON schema and the given test object.
+   * Runs only once when the component is loaded for the first time, because the dependencies of the useEffect are empty.
+   */
+  useEffect(() => {
+    const newRule = buildRule(properties, "and") as RuleExpression;
+    setTopRule(newRule);
+
+    const testResult = validateRule("and", testObj, newRule);
+    setIsTestValid(testResult.success);
+  }, []);
+
+  /**
+   * Called from the toolbar when a different schema is selected.
+   * Sets the new schema index. This will update the property list due to the useEffect in PropertyList
+   * and build a new rule based on the new schema.
+   * @param {number} schemaIndex - The index of the newly selected schema
+   */
   const handleSchemaSelect = (schemaIndex: number) => {
     setSchemaIndex(schemaIndex);
+    const newProperties = createProperties(
+      schemas[schemaIndex].schema,
+      testObj,
+      null,
+    );
+    setProperties(newProperties);
+
+    const newRule = buildRule(newProperties, "and") as RuleExpression;
+    setTopRule(newRule);
+    setTopOperator("and");
+    setSelectedRule({ uuid: "", operator: "and" });
+
+    const testResult = validateRule("and", testObj, newRule);
+
+    setIsTestValid(testResult.success);
   };
 
   /**
@@ -91,49 +127,27 @@ export default function CreateRule({
   /**
    * Called from the toolbar.
    * Load a rule from the list of existing rules as the new top rule
-   * @param {RuleExpression} rule - the top that replaces the top rule
-   * @param {Operator} operator - the operator of the new top rule
-   * @param {number} schemaIndex - The index of the schema the rule was created for
+   * @param {ArchivedRule} archivedRule - the archived rule to load
    */
-  const handleLoadRule = (
-    rule: RuleExpression,
-    operator: Operator,
-    schemaIndex: number,
-  ) => {
-    setSelectedRule({ uuid: "", operator: operator });
-    setTopOperator(operator);
-    setTopRule(rule);
+  const handleLoadRule = (archivedRule: ArchivedRule) => {
+    setSelectedRule({ uuid: "", operator: archivedRule.operator });
+    setTopOperator(archivedRule.operator);
+    setTopRule(archivedRule.rule);
+    setProperties(
+      createProperties(
+        schemas[archivedRule.schemaIndex].schema,
+        null,
+        archivedRule,
+      ),
+    );
+    setSchemaIndex(archivedRule.schemaIndex);
 
-    /*
-      TODO: This is a somehow weird way to stop resetting the rule upon a schema change due to the 
-      useEffect in PropertyList
-    */
-    setIsLoadedRule(true);
-    handleSchemaSelect(schemaIndex);
-
-    const testResult = validateRule(operator, testObj, rule);
+    const testResult = validateRule(
+      archivedRule.operator,
+      testObj,
+      archivedRule.rule,
+    );
     setIsTestValid(testResult.success);
-  };
-
-  /**
-   * Upon a change of the schema the top rule is rebuild and reset by the useEffect in the PropertyList.
-   * That means that all subrules will be deletet from the new top rule.
-   * The reset is NOT done if a rule was loaded! (see TODO!)
-   * @param {RuleExpression} rule - The new top rule with all added properties
-   */
-  const handleSchemaChange = (rule: RuleExpression) => {
-    /*
-      TODO: This is a somehow weird way to stop resetting the rule upon a schema change due to the 
-      useEffect in PropertyList
-    */
-    if (!isLoadedRule) {
-      setSelectedRule({ uuid: "", operator: "and" });
-      setTopOperator("and");
-      setTopRule(rule);
-      setIsTestValid(true);
-    } else {
-      setIsLoadedRule(false);
-    }
   };
 
   /**
@@ -145,9 +159,10 @@ export default function CreateRule({
 
   /**
    * If the currently selected rule was updated, update the rule (in the top rule).
-   * The top rule and subrules must be treated differntly.
+   * The top rule and subrules must be treated differently.
    * Tests the rule against the given test object
    * @param {RuleExpression} newRule
+   * @param {Operator} [newTopOperator] - Only needed if the top rule was updated and the operator of the top rule was changed.
    */
   const updateSelectedRule = (
     newRule: RuleExpression,
@@ -155,30 +170,55 @@ export default function CreateRule({
   ) => {
     const newTopRule = { ...topRule };
     let testResult: EvaluationResult;
+    const finalTopOperator =
+      typeof newTopOperator !== "undefined" ? newTopOperator : topOperator;
 
     if (!selectedRule.uuid) {
-      setTopRule(newRule);
-      if (typeof newTopOperator !== "undefined") {
-        // the top oparator was changed
-        testResult = validateRule(newTopOperator, testObj, newRule);
-      } else {
-        testResult = validateRule(topOperator, testObj, newRule);
-      }
+      //copy all subrules from the old toprule to the new toprule with the new operator
+      const oldOperators = topRule[topOperator] as object[];
+      const newOperators: unknown[] = copySubrules(
+        oldOperators,
+        newRule[selectedRule.operator],
+      );
 
+      const newTopRule: RuleExpression = { [finalTopOperator]: newOperators };
+      console.log(
+        "new toprule after adding subrules",
+        JSON.stringify(newTopRule),
+      );
+
+      setTopRule(newTopRule);
+
+      testResult = validateRule(finalTopOperator, testObj, newTopRule);
       setIsTestValid(testResult.success);
     } else {
-      const searchResult = findRule(
+      const searchResult = findSubrule(
         topRule[topOperator] as object[],
         selectedRule.uuid,
       ) as RuleSearchResult;
 
       const subrule = searchResult!.subrule;
 
-      subrule.rule = newRule;
-      testResult = validateRule(subrule.operator, testObj, subrule.rule);
+      //copy all subrules from the old subrule to the new subrule with the new operator
+      const oldOperators = subrule.rule[subrule.operator] as object[];
+      const newOperators: unknown[] = copySubrules(
+        oldOperators,
+        newRule[selectedRule.operator],
+      );
+
+      const newSubRule: RuleExpression = {
+        [selectedRule.operator]: newOperators,
+      };
+      console.log(
+        "new subrule after adding subrules",
+        JSON.stringify(newSubRule),
+      );
+
+      subrule.rule = newSubRule;
+      testResult = validateRule(subrule.operator, testObj, newSubRule);
       subrule.isValid = testResult.success;
 
-      testResult = validateRule(topOperator, testObj, newTopRule);
+      testResult = validateRule(finalTopOperator, testObj, newTopRule);
 
       setIsTestValid(testResult.success);
     }
@@ -196,7 +236,7 @@ export default function CreateRule({
       // get the operators of the top rule
       ruleOperators = topRule[topOperator];
     } else {
-      const searchResult = findRule(
+      const searchResult = findSubrule(
         topRule[topOperator] as object[],
         selectedRule.uuid,
       ) as RuleSearchResult;
@@ -232,7 +272,7 @@ export default function CreateRule({
   const handleDeleteRule = (uuid: string) => {
     const newTopRule: RuleExpression = { ...topRule };
 
-    const searchResult = findRule(
+    const searchResult = findSubrule(
       newTopRule[topOperator] as object[],
       uuid,
     ) as RuleSearchResult;
@@ -264,7 +304,7 @@ export default function CreateRule({
       // the top rule has no uuid
       selectedOperators = newTopRule[topOperator];
     } else {
-      const searchResult = findRule(
+      const searchResult = findSubrule(
         newTopRule[topOperator] as object[],
         uuid,
       ) as RuleSearchResult;
@@ -325,30 +365,41 @@ export default function CreateRule({
     selectedRule.operator = newOperator;
     setSelectedRule(selectedRule);
 
-    //copy all operators from the old rule to the new rule with the new operator
     const newRule: RuleExpression = { [newOperator]: [] };
+    let testResult: EvaluationResult;
 
     if (!selectedRule.uuid) {
+      //copy all operators from the old rule to the new rule with the new operator
       newRule[newOperator] = topRule[topOperator];
       setTopOperator(newOperator);
       setTopRule(newRule);
-      updateSelectedRule(newRule, newOperator);
-    } else {
-      const newTopRule: RuleExpression = { ...topRule };
 
-      const searchResult = findRule(
-        newTopRule[topOperator] as object[],
+      testResult = validateRule(newOperator, testObj, newRule);
+      setIsTestValid(testResult.success);
+    } else {
+      const searchResult = findSubrule(
+        topRule[topOperator] as object[],
         selectedRule.uuid,
       ) as RuleSearchResult;
+
       const subrule = searchResult.subrule;
+      //copy all operators from the old rule to the new rule with the new operator
       newRule[newOperator] = subrule.rule[subrule.operator];
       subrule.rule = newRule;
       subrule.operator = newOperator;
 
+      //even if the operator of a subrule changes, it must be copied to the top rule to update the rule text and test result
+      const newTopRule: RuleExpression = { ...topRule };
       setTopRule(newTopRule);
-      updateSelectedRule(newRule);
+
+      testResult = validateRule(subrule.operator, testObj, subrule.rule);
+      subrule.isValid = testResult.success;
+
+      testResult = validateRule(topOperator, testObj, topRule);
+      setIsTestValid(testResult.success);
     }
   };
+
   /**
    * Called when a property is added/removed/changed. (Including its operator)
    * Builds the rule based the properties and the top operator
@@ -358,7 +409,7 @@ export default function CreateRule({
     let valid = true;
     Object.values(properties).forEach((property) => {
       if (property.checked) {
-        validateProperty(property, property.value1.toString());
+        validateProperty(property, property.value1);
 
         if (
           typeof property.value1Error !== "undefined" ||
@@ -370,6 +421,13 @@ export default function CreateRule({
     });
 
     setProperties(properties);
+
+    const newRule = buildRule(
+      properties,
+      selectedRule.operator,
+    ) as RuleExpression;
+
+    updateSelectedRule(newRule);
   };
 
   return (
@@ -391,26 +449,21 @@ export default function CreateRule({
         <Box
           sx={{
             border: "1px solid grey",
-            height: 650,
+            height: 600,
             minWidth: 900,
             overflow: "auto",
-            pt: 2,
+            p: 2,
             borderRadius: 1,
           }}
         >
           <PropertyList
-            schemas={schemas}
-            schemaIndex={schemaIndex}
             testObj={testObj}
             maxLevel={maxLevel}
             properties={properties}
-            selectedRule={selectedRule}
             updateProperties={updateProperties}
-            handleSchemaChange={handleSchemaChange}
-            updateSelectedRule={updateSelectedRule}
           />
         </Box>
-        <BorderBox title="Rule">
+        <BorderBox title="Rule" sx={{ pl: 2 }}>
           <Box
             sx={{
               width: "fit-content",
@@ -437,7 +490,7 @@ export default function CreateRule({
             ) : (
               <List dense disablePadding sx={{ p: 1 }}>
                 <RuleList
-                  key="RL_top"
+                  key={createUUID()}
                   topRule={topRule}
                   topOperator={topOperator}
                   selectedRule={selectedRule}
@@ -458,6 +511,7 @@ export default function CreateRule({
           icon={isTestValid ? VerifiedRounded : DoNotDisturbOnRounded}
           title="Test Object"
           isValid={isTestValid}
+          sx={{ pl: 3 }}
         >
           <Box
             sx={{

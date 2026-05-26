@@ -4,6 +4,7 @@
 import { type JSX, useState, useEffect } from "react";
 import { List, ListItem, ListItemText, ListItemIcon } from "@mui/material";
 import { DataObject } from "@mui/icons-material";
+import { createUUID } from "../utils/general";
 
 interface ObjectListProps {
   obj: object;
@@ -38,7 +39,7 @@ export default function ObjectList({
 
     elements.push(
       <ListItem
-        key={`LI1_${level}`}
+        key={createUUID()}
         sx={{
           pl: level * indent,
           mb: 0.5,
@@ -59,7 +60,7 @@ export default function ObjectList({
 
         elements.push(
           <ListItem
-            key={`LI_${level}_${propCount}`}
+            key={createUUID()}
             disablePadding
             sx={{
               pl: level * indent,
@@ -68,7 +69,7 @@ export default function ObjectList({
               mt: -1,
             }}
           >
-            <ListItemText primary={key} secondary={value.toString()} />
+            <ListItemText primary={key} secondary={String(value)} />
           </ListItem>,
         );
       } else {
@@ -82,7 +83,7 @@ export default function ObjectList({
         : `${path}.${subObject.propName}`;
 
       elements = elements.concat(
-        <List component="div" key={`L_${propCount}`} dense disablePadding>
+        <List component="div" key={createUUID()} dense disablePadding>
           {createList(subObject.obj, newPath, level + 1)}
         </List>,
       );

@@ -10,15 +10,14 @@ import TextFieldValue1 from "../general/textfield-value1";
 import TextFieldValue2 from "../general/textfield-value2";
 import {
   ListItem,
-  MenuItem,
   Box,
   Chip,
-  TextField,
   Stack,
   Checkbox,
   ListItemText,
   ListItemButton,
 } from "@mui/material";
+import { createUUID } from "../utils/general";
 
 interface PropertyItemProps {
   isExpanded: boolean;
@@ -78,7 +77,7 @@ export default function PropertyItem({
   if (typeof property === "undefined") return null;
 
   const indent = 3;
-  const itemMinWidth = 250;
+  const itemMinWidth = 240;
   const inputWidth = 400;
   const isNoCompareOperator = getNoCompareOperators().includes(
     property.operators[0],
@@ -113,9 +112,9 @@ export default function PropertyItem({
   };
 
   return (
-    <Stack direction="row" sx={{ m: -1, pl: -1 }}>
+    <Stack key={createUUID()} direction="row" sx={{ m: -1, mb: -0.5, pl: -1 }}>
       <ListItem
-        disablePadding
+        key={createUUID()}
         sx={{
           display: isExpanded ? "block" : "none",
           pl: level * indent,
@@ -123,8 +122,13 @@ export default function PropertyItem({
           width: "fit-content",
         }}
       >
-        <ListItemButton onClick={() => handlePropCheck(bufferKey)}>
+        <ListItemButton
+          key={createUUID()}
+          onClick={() => handlePropCheck(bufferKey)}
+          sx={{ pt: -2, pb: -2 }}
+        >
           <Checkbox
+            key={createUUID()}
             edge="start"
             checked={
               typeof property.checked !== "undefined" ? property.checked : true
@@ -132,14 +136,19 @@ export default function PropertyItem({
             disableRipple
           />
           <ListItemText
+            key={createUUID()}
             primary={property.key}
             secondary={property.type}
             sx={{ minWidth: 100 }}
           />
         </ListItemButton>
       </ListItem>
-      <Box sx={[isExpanded ? { display: "block" } : { display: "none" }]}>
+      <Box
+        key={createUUID()}
+        sx={[isExpanded ? { display: "block" } : { display: "none" }]}
+      >
         <Stack
+          key={createUUID()}
           direction="row"
           spacing={2}
           sx={{
@@ -152,6 +161,7 @@ export default function PropertyItem({
           }}
         >
           <OperatorSelect
+            key={createUUID()}
             property={property}
             bufferKey={bufferKey}
             handlePropOperatorChange={handlePropOperatorChange}
@@ -159,6 +169,7 @@ export default function PropertyItem({
 
           {!isNoCompareOperator && property?.checked && (
             <TextFieldValue1
+              key={createUUID()}
               property={property}
               bufferKey={bufferKey}
               isPropertySelect={isPropertySelect}
@@ -170,6 +181,7 @@ export default function PropertyItem({
 
           {property.operators[0] === "between" && (
             <TextFieldValue2
+              key={createUUID()}
               property={property}
               bufferKey={bufferKey}
               isPropertySelect={isPropertySelect}
@@ -179,7 +191,7 @@ export default function PropertyItem({
             />
           )}
           <PropertyToolbar
-            key={`PT_Property_Toolbar_${property.key}`}
+            key={createUUID()}
             property={property}
             bufferKey={bufferKey}
             isPropertySelect={isPropertySelect}
@@ -206,7 +218,7 @@ export default function PropertyItem({
             if (operatorIndex > 0)
               return (
                 <Chip
-                  key={`CH_Property_Toolbar_${operatorIndex}`}
+                  key={createUUID()}
                   onDelete={() =>
                     handleDeleteOperator(bufferKey, operatorIndex)
                   }
