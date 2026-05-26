@@ -254,7 +254,10 @@ export default function CreateRule({
     ruleOperators.forEach((operator, index) => {
       Object.entries(operator as object).forEach(
         ([operatorName, operatorValue]) => {
-          if (operatorName !== "subrule") {
+          if (
+            operatorName !== "subrule" &&
+            typeof properties[operatorValue[0]] !== "undefined"
+          ) {
             properties[operatorValue[0]].checked = true;
           }
         },

@@ -22,11 +22,7 @@ interface AddRuleProps {
   archivedRules: ArchivedRule[];
   schemaIndex: number;
   handleAddEmptyRule: (operator: Operator) => void;
-  handleLoadArchiveRule: (
-    rule: RuleExpression,
-    operator: Operator,
-    schemaIndex: number,
-  ) => void;
+  handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
 
 /**
@@ -79,7 +75,6 @@ export default function AddRule({
             <RulesTable
               archivedRules={archivedRules}
               handleLoadArchiveRule={handleLoadArchiveRule}
-              schemaIndex={schemaIndex}
             />
           )}
         </Box>{" "}

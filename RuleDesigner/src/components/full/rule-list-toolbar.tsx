@@ -84,9 +84,13 @@ export default function RuleListToolbar({
    * @param {RuleExpression} rule The existing rule to add
    * @param {Operator} operator The operator of the rule that will be added
    */
-  const handleLoadArchiveRule = (rule: RuleExpression, operator: Operator) => {
+  const handleLoadArchiveRule = (archivedRule: ArchivedRule) => {
     setIsOpen(false);
-    const subOperators = restoreSubrules(rule[operator] as object[], []);
+    const operator = archivedRule.operator;
+    const subOperators = restoreSubrules(
+      archivedRule.rule[operator] as object[],
+      [],
+    );
     const subrule: RuleExpression = {
       [operator]: subOperators,
     };
