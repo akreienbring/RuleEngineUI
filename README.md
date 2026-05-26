@@ -29,7 +29,7 @@ RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engin
   Here it is possible to create subrules of any depth. Allows also for more than one operator per property.
 
 - **Rule testing while building**<br/>
-  While constructing the rule it is permanently tested against a given test object. The evaluation result is presented visually.
+  While constructing the rule, it is permanently tested against a given test object. The evaluation result is presented visually.
 
 ## What to use RuleDesigner for?
 
@@ -39,6 +39,8 @@ RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engin
   Previously stored rules can be edited and applied to a test object. RuleDesingner also uses a custom interface for executing commands when a given rule was evaluated with a possitive result against an object.
 
 ## Screenshots
+
+![Simple Table](screens/simple_table.png)
 
 ![Simple UI](screens/simple_ui.png)
 
