@@ -1,0 +1,10 @@
+/HowTo.md
+/rule-engine-js-ui.code-workspace
+
+RuleDesigner/node_modules/
+RuleDesigner/.vscode/*
+!RuleDesigner/.vscode/launch.json
+
+rule-engine-js-ui/node_modules/
+rule-engine-js-ui/dist/
+
