@@ -6,6 +6,7 @@ An userinterface for [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine
 
 ## Overview
 
+[Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js) is JSON based Rule Engine used to validate / evaluate objects. This means a rule can be used to check if a certain object with certain properties complies to a given rule.
 RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engine-JS (rule-engine-js-ui) and a Test Application with many examples how to implement and use them (RuleDesigner).
 All of this is based on React and uses MUI for styling. That's why these libraries must be installed in the application that uses this package.
 
@@ -41,7 +42,7 @@ All of this is based on React and uses MUI for styling. That's why these librari
 
 ## Prerequisites
 
-Please install the following peer dependencies, if you want to use this RuleEngineJSUI:
+Please install the following peer dependencies, if you want to use RuleEngineJSUI:
 
 ```
 npm i react react-dom @emotion/react @mui/material
