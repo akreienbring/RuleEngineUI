@@ -2,25 +2,25 @@
 
 ![license](https://img.shields.io/badge/license-MIT-orange)
 
-An userinterface for [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js).
+An userinterface for [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js). Based on React and MUI.
 
 ## Overview
 
-[Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js) is JSON based Rule Engine used to validate / evaluate objects. This means a rule can be used to check if a certain object with certain properties complies to a given rule.
+[Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js) is a JSON based Rule Engine used to validate / evaluate objects. This means a rule can be used to check if a certain object with certain properties complies to a given rule.
 RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engine-JS (rule-engine-js-ui) and a Test Application with many examples how to implement and use them (RuleDesigner).
 All of this is based on React and uses MUI for styling. That's why these libraries must be installed in the application that uses this package.
 
 ## General features
 
 - **Create rules**<br/>
-  The visual interfaces allow to create rules from reading JSON schemas of objects by converting the object properties to input fields. For every property an rule operator can be selected (e.g. 'eq', 'neq', 'gt', 'contains'...). The operators correspond to the type of the property (e.g. 'number', 'string', 'boolean').
+  Both visual interfaces allow to create rules from reading JSON schemas of objects by converting the object properties to input fields. For every property a rule operator can be selected (e.g. 'eq', 'neq', 'gt', 'contains', isTrue...). The operators correspond to the type of the property (e.g. 'number', 'string', 'boolean').
   While selecting properties and operators, the rule is build in the background and visually presented in the UI.
   Created rules can be saved for later usage by handing them over to the application that uses the UI.
 
 ## Features of the Simple UI
 
 - **Assitant like guidance**<br/>
-  This UI is intendet to create less complex rules (without subrules). The user is led through the process from selecting a schema to saving the rule.
+  This UI is intended to create less complex rules (without subrules). The user is led through the process from selecting a schema to saving the rule.
 
 - **Customizable**<br/>
   Addons can be injected into the component to extend the functionality. See the RuleDesigner application for reference.
@@ -36,9 +36,11 @@ All of this is based on React and uses MUI for styling. That's why these librari
 ## What to use RuleDesigner for?
 
 - **Implementation examples**<br/>
-  It's recommended to use RuleDesigner for learning how to implement RuleEngineUIJS. Examples of objects and schemas are provided, ready to start with the simple- and the full UI. There's also a 'playground' that demonstrates the usage of the stateful engine of [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js/blob/production/docs/essentials/stateful-engine.mdx)
+  It's recommended to use RuleDesigner for learning how to implement RuleEngineJSUI. Examples of objects and schemas are provided, ready to start with the simple- and the full UI. There's also a 'playground' that demonstrates the usage of the stateful engine of [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js/blob/production/docs/essentials/stateful-engine.mdx)
 
   Previously stored rules can be edited and applied to a test object. RuleDesingner also uses a custom interface for executing commands when a given rule was evaluated with a possitive result against an object.
+
+  RuleDesigner is a web application and hence needs a web server to run. In your develop environment you can use Vite to run it.
 
 ## Prerequisites
 

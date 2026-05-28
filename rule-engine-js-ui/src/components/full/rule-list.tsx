@@ -5,6 +5,7 @@
 
 */
 import { type JSX, useState } from "react";
+import type { ArchivedRule } from "@src/components/types/public";
 import { RuleExpression } from "rule-engine-js";
 import { List, ListItem, ListItemText } from "@mui/material";
 import RuleListToolbar from "./rule-list-toolbar";

@@ -4,8 +4,7 @@
 import { type JSX, useState } from "react";
 import AddEmptyRule from "./add-empty-rule";
 import RulesTable from "./rules-table";
-import { RuleExpression } from "rule-engine-js";
-
+import type { ArchivedRule } from "@src/components/types/public";
 import {
   Dialog,
   DialogActions,
@@ -74,6 +73,7 @@ export default function AddRule({
           {currentTabIndex === 1 && (
             <RulesTable
               archivedRules={archivedRules}
+              schemaIndex={schemaIndex}
               handleLoadArchiveRule={handleLoadArchiveRule}
             />
           )}

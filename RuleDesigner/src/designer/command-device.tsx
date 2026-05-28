@@ -20,11 +20,16 @@ interface CommandDeviceProps {
   handleDeleteCommand: (cdIndex: number) => void;
 }
 /**
- * Allows to select a schema from a list
+ * A component used to select command / device combinations
  * @param {CommandDeviceProps} props
- * @param {number} props.schemaIndex - The index of the currently selected JSON schema
- * @param {InputSchema[]} props.schemas - Different JSON schemas for selecting properties
- * @returns
+ * @param {string[]} props.commands - A list of commands as strings
+ * @param {any[]} props.devices - A list of device objects
+ * @param {CommandDevice[]} props.commandsDevices - A list of already existing command / device combinations
+ * @param {Function} props.handleCommandChange - Called when a command was selected
+ * @param {Function} props.handleDeviceChange - Called when a device was selected
+ * @param {Function} props.handleAddCommand - Called when a command was added to a combination
+ * @param {Function} props.handleDeleteCommand - Called when a command was deletet from a combination
+ * @returns {JSX.Element}
  */
 export default function CommandDevice({
   commands,

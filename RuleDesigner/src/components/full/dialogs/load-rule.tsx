@@ -3,8 +3,7 @@
 */
 import { type JSX } from "react";
 import RulesTable from "./rules-table";
-import { RuleExpression } from "rule-engine-js";
-
+import type { ArchivedRule } from "@src/components/types/public";
 import {
   Dialog,
   DialogTitle,

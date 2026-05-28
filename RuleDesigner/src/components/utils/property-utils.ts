@@ -6,7 +6,11 @@ import {
   getOperatorByType,
 } from "@src/components/utils/operator-utils";
 import { getValueByPath } from "@src/components/utils/rule-utils-js";
-
+import type {
+  ArchivedRule,
+  JSONProperty,
+  JSONSchema,
+} from "@src/components/types/public";
 /**
  * JSONSchema property object can have 3 kinds of keys: const, enum, and type. If the type is not given,
  * it can be detected by the type of the value of const or the type of the first entry in enum.

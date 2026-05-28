@@ -3,9 +3,19 @@
     used in this project: https://github.com/crafts69guy/rule-engine-js
     https://www.json-rule-editor.com, https://github.com/cachecontrol/json-rules-engine
     https://github.com/ali-master/rule-engine
+
+  This application:
+    https://www.npmjs.com/package/rule-engine-js-ui
+    https://github.com/akreienbring/RuleEngineUI
 */
 
 import { type JSX, useState } from "react";
+import type {
+  ArchivedRule,
+  Addon,
+  InputSchema,
+  JSONSchema,
+} from "@src/components/types/public";
 import { createSchema } from "@omni-clm/genson-js";
 import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 //import { RuleEngineJSUI } from "rule-engine-js-ui";
@@ -170,12 +180,12 @@ export default function RuleDesigner(): JSX.Element {
   const handleAddCommand = () => {
     const newCommandsDevices = [...commandsDevices];
 
-    const leftDevices = devices.filter((device) => {
-      const index = newCommandsDevices.findIndex(
-        (commandDevice) => commandDevice.device.id === device.id,
-      );
-      if (index === -1) return device;
-    });
+    const leftDevices = devices.filter(
+      (device) =>
+        newCommandsDevices.findIndex(
+          (commandDevice) => commandDevice.device.id === device.id,
+        ) === -1,
+    );
 
     newCommandsDevices.push({
       command: commands[0],
@@ -226,7 +236,6 @@ export default function RuleDesigner(): JSX.Element {
       </Tabs>
       {currentTabIndex === 0 && (
         <RuleView
-          rules={archivedRules}
           testObj={NotifyEvent}
           schemas={schemas}
           addons={addons}

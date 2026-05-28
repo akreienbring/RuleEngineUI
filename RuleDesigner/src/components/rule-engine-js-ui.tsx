@@ -7,6 +7,11 @@
 */
 
 import { type JSX, useState } from "react";
+import type {
+  ArchivedRule,
+  Addon,
+  InputSchema,
+} from "@src/components/types/public";
 import CreateRule from "./full/create-rule";
 import SimpleRule from "./simple/simple-rule";
 import {

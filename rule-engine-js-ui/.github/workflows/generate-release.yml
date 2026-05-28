@@ -1,0 +1,45 @@
+name: Generate Release and Publish to NPM
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Get Tag Name
+      - name: Get Tag name
+        id: vars
+        run: echo "TAG_NAME=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      # Generates a GitHub Release
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: ${{ env.ZIP_NAME }}
+          body: |
+            **RuleEngineUI – Version ${{ github.ref_name }}**
+            
+            For detailed changes in this version, see the Changelog.
+          generate_release_notes: false
+          make_latest: "true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_TOKEN }}
+    
+      # Publish to NPM
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

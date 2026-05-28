@@ -1,5 +1,3 @@
-import { RuleExpression } from "rule-engine-js";
-
 declare global {
   type Operator =
     | "and"
@@ -34,7 +32,7 @@ declare global {
 
   type PropertyType = "number" | "string" | "boolean" | "array" | "null";
 
-  export type Property = {
+  type Property = {
     key: string;
     value1: any;
     origValue1: any;
@@ -50,62 +48,27 @@ declare global {
     enum?: string[] | number[];
   };
 
-  export type PropertyBuffer = {
+  type PropertyBuffer = {
     [key: string]: Property;
   };
 
-  export type InputSchema = {
-    name: string;
-    description: string;
-    schema: JSONSchema;
-    schemaId: number;
-  };
-
-  export type JSONProperty = {
-    type?: string;
-    const?: string | number | boolean;
-    enum?: (string | number)[];
-  };
-
-  export type JSONSchema = {
-    type: string;
-    properties: { [key: string]: JSONProperty };
-    required: string[];
-  };
-
-  export type Subrule = {
+  type Subrule = {
     uuid: string;
     operator: Operator;
     isValid: boolean;
     rule: RuleExpression;
   };
 
-  export type RuleIndex = {
+  type RuleIndex = {
     uuid: string;
     operator: Operator;
   };
 
-  export type RuleSearchResult = {
+  type RuleSearchResult = {
     operators: object[];
     operatorIndex: number;
     subrule: Subrule;
   };
-
-  export interface ArchivedRule {
-    ruleid: number;
-    name: string;
-    description: string;
-    schema: string;
-    schemaIndex: number;
-    operator: Operator;
-    rule: RuleExpression;
-  }
-
-  export interface Addon {
-    summary: string;
-    selected: string;
-    details: JSX.Element;
-  }
 }
 
 export {};

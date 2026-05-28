@@ -3,6 +3,11 @@
   see: https://stackoverflow.com/questions/38548039/can-you-store-javascript-in-a-db-and-then-execute-it-later-time
 */
 import { type JSX, useState } from "react";
+import type {
+  ArchivedRule,
+  Addon,
+  InputSchema,
+} from "@src/components/types/public";
 import {
   Card,
   Table,
@@ -27,7 +32,6 @@ import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 import TestDialog from "./test-dialog";
 
 interface RuleViewProps {
-  rules: SCentralRule[];
   testObj: object;
   schemas: InputSchema[];
   addons: Addon[];
@@ -37,8 +41,18 @@ interface RuleViewProps {
   handleUpdateRule: (archivedRule: ArchivedRule) => void;
 }
 
+/**
+ * Offers function to create, save end edit rules used for automation
+ * @param {RuleViewProps} props
+ * @param {object} props.testObj - An object, used to be evaluated with a given rule
+ * @param {InputSchema[]} props.schemas - A list of schemas used for the creation of rules
+ * @param {Addon[]} props.addons - A list of addons (customizations) that can be added to the create rule dialog.
+ * @param {SCentralRule[]} props.archivedRules - A list of already existing rules to show in a table
+ * @param {Function} props.handleSaveRule - Called when a rule must be saved
+ * @param {Function} props.handleDeleteRule - Called when a rule must be deleted
+ * @param {Function} props.handleUpdateRule - Called when a rule must be updated
+ * @returns {JSX.Element} */
 export default function RuleView({
-  rules,
   testObj,
   schemas,
   addons,
@@ -54,7 +68,7 @@ export default function RuleView({
   const [filterName, setFilterName] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [showReallyDelete, setShowReallyDelete] = useState(false);
-  const [rowCount, setRowCount] = useState(rules.length - 1);
+  const [rowCount, setRowCount] = useState(archivedRules.length - 1);
   const [isOpenRule, setIsOpenRule] = useState<{
     open: boolean;
     rule?: SCentralRule;
@@ -120,7 +134,7 @@ export default function RuleView({
   */
   const handleSelectAllClick = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      const newSelected = rules.map((r) => r.name);
+      const newSelected = archivedRules.map((r) => r.name);
       setSelected(newSelected);
       return;
     }
@@ -158,7 +172,7 @@ export default function RuleView({
     The server responds with an updated list of rules.
   */
   const handleDeleteSelected = () => {
-    const ids = rules
+    const ids = archivedRules
       .filter((r) => selected.includes(r.name))
       .map((r) => r.ruleid);
     setSelected([]);
@@ -201,7 +215,7 @@ export default function RuleView({
     dataFiltered is the resulting Array with the sorted and filterec rules
   */
   const dataFiltered: SCentralRule[] = applyRuleFilter({
-    inputData: rules,
+    inputData: archivedRules,
     comparator: getComparator(order, orderBy),
     filterName,
   });
@@ -263,7 +277,7 @@ export default function RuleView({
 
               <TableEmptyRows
                 height={77}
-                emptyRows={emptyRows(page, rowsPerPage, rules.length)}
+                emptyRows={emptyRows(page, rowsPerPage, archivedRules.length)}
               />
 
               {notFound && <TableNoData query={filterName} />}
@@ -274,7 +288,7 @@ export default function RuleView({
         <TablePagination
           page={page}
           component="div"
-          count={rules.length}
+          count={archivedRules.length}
           rowsPerPage={rowsPerPage}
           onPageChange={handleChangePage}
           rowsPerPageOptions={[5, 10, 25]}

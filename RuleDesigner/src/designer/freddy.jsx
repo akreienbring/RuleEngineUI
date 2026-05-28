@@ -27,7 +27,7 @@ const statefulEngine = new StatefulRuleEngine(baseEngine, {
 const freddy = {
   name: "Freddy",
   state: "sleeping",
-  image: "/public/assets/dog_sleeping.png",
+  image: "/assets/dog_sleeping.png",
   hunger: 0,
 };
 
@@ -88,11 +88,11 @@ export default function Freddy() {
     console.log("Current state:", event.currentState);
     const newDog = { ...event.context };
     if (newDog.state === "awake") {
-      newDog.image = "/public/assets/dog_awake.png";
+      newDog.image = "/assets/dog_awake.png";
     } else if (newDog.state === "hungry") {
-      newDog.image = "/public/assets/dog_eating.png";
+      newDog.image = "/assets/dog_eating.png";
     } else if (newDog.state === "playing") {
-      newDog.image = "/public/assets/dog_playing.png";
+      newDog.image = "/assets/dog_playing.png";
     }
     setDog(newDog);
   });

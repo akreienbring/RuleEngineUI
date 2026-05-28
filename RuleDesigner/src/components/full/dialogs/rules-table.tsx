@@ -1,3 +1,8 @@
+/*
+  Author: André Kreienbring
+  A table that presents stored rules
+*/
+import type { ArchivedRule } from "@src/components/types/public";
 import {
   Typography,
   Table,
@@ -13,20 +18,31 @@ import { createUUID } from "@src/components/utils/general";
 
 interface RulesTableProps {
   archivedRules: ArchivedRule[];
+  schemaIndex?: number;
   handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
 
 /**
- * A table that contains already existing rules that can be loaded.
+ * A table that contains already existing rules that can be loaded. The rule may be loaded as a toprule or as a subrule.
+ * For loading as a subrule, the given schemaIndex restricts the offered rules to the schema of the parent rule.
  * @param {RulesTableProps} props
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
+ * @param {number} [props.schemaIndex] - If given, indicates that the rule will be added to a parent rule as subrule.
  * @param {Function} props.handleLoadArchiveRule - Called when an already existing rule is added as a subrule
  * @returns
  */
 export default function RulesTable({
   archivedRules,
+  schemaIndex,
   handleLoadArchiveRule,
 }: RulesTableProps) {
+  let validRules = archivedRules;
+  if (typeof schemaIndex !== "undefined") {
+    validRules = archivedRules.filter(
+      (rule) => rule.schemaIndex === schemaIndex,
+    );
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table size="small" sx={{ maxWidth: 600 }}>
@@ -39,7 +55,7 @@ export default function RulesTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {archivedRules.map((archivedRule) => (
+          {validRules.map((archivedRule) => (
             <TableRow
               key={createUUID()}
               onClick={(event) => handleLoadArchiveRule(archivedRule)}
@@ -58,9 +74,11 @@ export default function RulesTable({
           ))}
         </TableBody>
       </Table>
-      {archivedRules.length === 0 && (
+      {validRules.length === 0 && (
         <Box sx={{ width: 1, justifyContent: "center" }}>
-          <Typography>There is no rule</Typography>
+          <Typography>
+            {`There is no rule ${typeof schemaIndex !== "undefined" ? "for the parentrule schema" : ""}`}
+          </Typography>
         </Box>
       )}
     </TableContainer>

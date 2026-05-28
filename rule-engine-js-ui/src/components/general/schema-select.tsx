@@ -2,6 +2,7 @@
   Author: André Kreienbring
 */
 import { type JSX } from "react";
+import type { InputSchema } from "@src/components/types/public";
 import { TextField, MenuItem } from "@mui/material";
 import { createUUID } from "@src/components/utils/general";
 

@@ -4,6 +4,11 @@
   It offers far less functions then the full blown create rule UI.
 */
 import { type JSX, useState, useEffect } from "react";
+import type {
+  ArchivedRule,
+  Addon,
+  InputSchema,
+} from "@src/components/types/public";
 import { RuleExpression } from "rule-engine-js";
 import {
   Dialog,
