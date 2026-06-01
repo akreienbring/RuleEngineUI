@@ -7,31 +7,32 @@
 */
 import { type JSX, useState } from "react";
 import { List } from "@mui/material";
-import ObjectItem from "./object-item";
-import PropertyItem from "./property-item";
+import ObjectItem from "../full/object-item";
+import PropertyItem from "../full/property-item";
+import SimplePropertyItem from "@src/components/simple/simple-property-item";
 import { getOperatorByType } from "@src/components/utils/operator-utils";
 import { validateProperty } from "@src/components/utils/property-utils";
 import { createUUID } from "../utils/general";
 
 interface PropertyListProps {
-  testObj: object;
-  maxLevel?: number;
+  isSimple: boolean;
   properties: PropertyBuffer;
   updateProperties: (properties: PropertyBuffer) => void;
+  maxLevel?: number;
 }
 
 /**
  * Based on the given input parameters this component not only builds the HTML elements, but also the Properties and an initial rule that is
  * valid regarding the given test object.
  * @param {PropertyListProps} props
- * @param {object} props.testObj - An object used to validate the created rule with. This helps visually testing the rule while it is created.
- * @param {number} props.maxLevel - If provided, the JSON schema is only analized up to the given
+ * @param {boolean} props.isSimple - If true the simple property list (for SimpleRule) is rendered else the more complex one (for CreateRule)
  * @param {Function} props.properties - The current property buffer
  * @param {Function} props.updateProperties - Called every time when the property buffer was changed.
  * @returns {JSX.Element} The List with all properties from a JSON schema.
+ * @param {number} props.maxLevel - If provided, the JSON schema is only analized up to the given
  */
 export default function PropertyList({
-  testObj,
+  isSimple,
   maxLevel,
   properties,
   updateProperties,
@@ -69,41 +70,6 @@ export default function PropertyList({
       property.value1 = property.value1 ? property.value1 : "";
       property.value2 = property.value2 ? property.value2 : "";
     }
-    updateProperties(newProperties);
-  };
-
-  /**
-   * Called from the toolbar of a property to add an additional operator.
-   * @param {string} bufferKey Identifies the property where a new opeator must be added
-   */
-  const handleAddOperator = (bufferKey: string) => {
-    const newProperties: PropertyBuffer = { ...properties };
-    const property: Property = newProperties[bufferKey];
-
-    // Insert the new operator at the beginning of the properties operator list
-    property.operators.unshift(
-      getOperatorByType(
-        property.type,
-        typeof property.enum !== "undefined",
-        property.operators,
-        property.value1,
-      ),
-    );
-
-    updateProperties(newProperties);
-  };
-
-  /**
-   * Called from the toolbar of a property. Delets a previously added operator from the property
-   * @param {string} bufferKey - Identifies the property in the property buffer
-   * @param {number} operatorIndex - The index of the operator in the properties operators list
-   */
-  const handleDeleteOperator = (bufferKey: string, operatorIndex: number) => {
-    const newProperties: PropertyBuffer = { ...properties };
-    const property: Property = newProperties[bufferKey];
-
-    property.operators.splice(operatorIndex, 1);
-
     updateProperties(newProperties);
   };
 
@@ -156,6 +122,41 @@ export default function PropertyList({
     const newProperties: PropertyBuffer = { ...properties };
     const property: Property = newProperties[bufferKey];
     property.checked = !property.checked;
+
+    updateProperties(newProperties);
+  };
+
+  /**
+   * Called from the toolbar of a property to add an additional operator.
+   * @param {string} bufferKey Identifies the property where a new opeator must be added
+   */
+  const handleAddOperator = (bufferKey: string) => {
+    const newProperties: PropertyBuffer = { ...properties };
+    const property: Property = newProperties[bufferKey];
+
+    // Insert the new operator at the beginning of the properties operator list
+    property.operators.unshift(
+      getOperatorByType(
+        property.type,
+        typeof property.enum !== "undefined",
+        property.operators,
+        property.value1,
+      ),
+    );
+
+    updateProperties(newProperties);
+  };
+
+  /**
+   * Called from the toolbar of a property. Delets a previously added operator from the property
+   * @param {string} bufferKey - Identifies the property in the property buffer
+   * @param {number} operatorIndex - The index of the operator in the properties operators list
+   */
+  const handleDeleteOperator = (bufferKey: string, operatorIndex: number) => {
+    const newProperties: PropertyBuffer = { ...properties };
+    const property: Property = newProperties[bufferKey];
+
+    property.operators.splice(operatorIndex, 1);
 
     updateProperties(newProperties);
   };
@@ -214,40 +215,49 @@ export default function PropertyList({
         isObject = true;
         lastLevel++;
       }
-
-      elements.push(
-        <>
-          {isObject && (
-            <ObjectItem
-              key={createUUID()}
-              level={property.level}
-              indent={indent}
-              path={property.level > 0 ? bufferKey : ""}
-              isExpanded={isExpanded}
-              handleExpandObject={handleExpandObject}
-            />
-          )}
-          <PropertyItem
-            key={createUUID()}
-            isExpanded={isExpanded}
-            level={property.level}
-            propName={property.key}
-            properties={properties}
+      if (isSimple) {
+        elements.push(
+          <SimplePropertyItem
+            property={property}
             bufferKey={bufferKey}
             handlePropCheck={handlePropCheck}
             handlePropOperatorChange={handlePropOperatorChange}
             handleValueChange={handleValueChange}
-            handleDeleteOperator={handleDeleteOperator}
-            handleAddOperator={handleAddOperator}
-            handleResetProperty={handleResetProperty}
-            handleSelectOperator={handleSelectOperator}
-          />
-        </>,
-      );
+          />,
+        );
+      } else {
+        elements.push(
+          <>
+            {isObject && (
+              <ObjectItem
+                key={createUUID()}
+                level={property.level}
+                indent={indent}
+                path={property.level > 0 ? bufferKey : ""}
+                isExpanded={isExpanded}
+                handleExpandObject={handleExpandObject}
+              />
+            )}
+            <PropertyItem
+              isExpanded={isExpanded}
+              level={property.level}
+              propName={property.key}
+              properties={properties}
+              bufferKey={bufferKey}
+              handlePropCheck={handlePropCheck}
+              handlePropOperatorChange={handlePropOperatorChange}
+              handleValueChange={handleValueChange}
+              handleDeleteOperator={handleDeleteOperator}
+              handleAddOperator={handleAddOperator}
+              handleResetProperty={handleResetProperty}
+              handleSelectOperator={handleSelectOperator}
+            />
+          </>,
+        );
+      }
     });
   };
 
-  //createList(schemas[schemaIndex].schema.properties, "", 0);
   createList(properties);
   return (
     <List dense disablePadding sx={{ p: -1 }}>

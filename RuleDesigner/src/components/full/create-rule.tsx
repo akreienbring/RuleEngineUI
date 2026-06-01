@@ -12,7 +12,7 @@ import { type JSX, useState, useEffect } from "react";
 import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import { EvaluationResult, RuleExpression } from "rule-engine-js";
 import RuleList from "./rule-list";
-import PropertyList from "./property-list";
+import PropertyList from "../general/property-list";
 import CreateRuleToolbar from "./create-rule-toolbar";
 import { createUUID } from "@src/components/utils/general";
 import { buildRule } from "@src/components/utils/rule-utils-js";
@@ -45,7 +45,7 @@ interface CreateRuleProps {
  * Presents all utilities to create a rule useable with the JSON rule engine.
  * @param {CreateRuleProps} props
  * @param {InputSchema[]} props.schemas - A list of JSON schemas to build a rule for. Schemas must be provided by the user of the rule designer
- * @param {schemaIndex} props.schemaIndex - The index of the currently selected schema
+ * @param {schemaId} props.schemaId - The id of the currently selected schema
  * @param {object} props.testObj - An object used to validate the created rule with. This helps visually testing the rule while it is created
  * @param {number} [props.maxLevel] - If provided, the JSON schema is only analized up to the given depht
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
@@ -60,9 +60,9 @@ export default function CreateRule({
   archivedRules,
   prepareSaveRule,
 }: CreateRuleProps): JSX.Element {
-  const [schemaIndex, setSchemaIndex] = useState(0);
+  const [schemaId, setSchemaIndex] = useState(0);
   const [properties, setProperties] = useState<PropertyBuffer>(
-    createProperties(schemas[schemaIndex].schema, testObj, null),
+    createProperties(schemas[schemaId].schema, testObj, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>({
     and: [],
@@ -91,12 +91,12 @@ export default function CreateRule({
    * Called from the toolbar when a different schema is selected.
    * Sets the new schema index. This will update the property list due to the useEffect in PropertyList
    * and build a new rule based on the new schema.
-   * @param {number} schemaIndex - The index of the newly selected schema
+   * @param {number} schemaId - The id of the newly selected schema
    */
-  const handleSchemaSelect = (schemaIndex: number) => {
-    setSchemaIndex(schemaIndex);
+  const handleSchemaSelect = (schemaId: number) => {
+    setSchemaIndex(schemaId);
     const newProperties = createProperties(
-      schemas[schemaIndex].schema,
+      schemas[schemaId].schema,
       testObj,
       null,
     );
@@ -118,11 +118,7 @@ export default function CreateRule({
    */
   const handleSaveToprule = () => {
     transformRule(topOperator, topRule);
-    prepareSaveRule(
-      transformRule(topOperator, topRule),
-      topOperator,
-      schemaIndex,
-    );
+    prepareSaveRule(transformRule(topOperator, topRule), topOperator, schemaId);
   };
 
   /**
@@ -136,12 +132,12 @@ export default function CreateRule({
     setTopRule(archivedRule.rule);
     setProperties(
       createProperties(
-        schemas[archivedRule.schemaIndex].schema,
+        schemas[archivedRule.schemaId].schema,
         null,
         archivedRule,
       ),
     );
-    setSchemaIndex(archivedRule.schemaIndex);
+    setSchemaIndex(archivedRule.schemaId);
 
     const testResult = validateRule(
       archivedRule.operator,
@@ -183,10 +179,12 @@ export default function CreateRule({
       );
 
       const newTopRule: RuleExpression = { [finalTopOperator]: newOperators };
+      /*
       console.log(
         "new toprule after adding subrules",
         JSON.stringify(newTopRule),
       );
+      */
 
       setTopRule(newTopRule);
 
@@ -210,10 +208,12 @@ export default function CreateRule({
       const newSubRule: RuleExpression = {
         [selectedRule.operator]: newOperators,
       };
+      /*
       console.log(
         "new subrule after adding subrules",
         JSON.stringify(newSubRule),
       );
+      */
 
       subrule.rule = newSubRule;
       testResult = validateRule(subrule.operator, testObj, newSubRule);
@@ -438,7 +438,7 @@ export default function CreateRule({
     <Box sx={{ width: "fit-content" }}>
       <CreateRuleToolbar
         schemas={schemas}
-        schemaIndex={schemaIndex}
+        schemaId={schemaId}
         operator={selectedRule.operator}
         isShowRuleText={isShowRuleText}
         archivedRules={archivedRules}
@@ -461,7 +461,7 @@ export default function CreateRule({
           }}
         >
           <PropertyList
-            testObj={testObj}
+            isSimple={false}
             maxLevel={maxLevel}
             properties={properties}
             updateProperties={updateProperties}
@@ -501,7 +501,8 @@ export default function CreateRule({
                   isTestValid={isTestValid}
                   uuid={""}
                   archivedRules={archivedRules}
-                  schemaIndex={schemaIndex}
+                  schemaId={schemaId}
+                  schemaName={schemas[schemaId].name}
                   handleSelectedRuleChange={handleSelectedRuleChange}
                   handleAddRule={handleAddRule}
                   handleDeleteRule={handleDeleteRule}

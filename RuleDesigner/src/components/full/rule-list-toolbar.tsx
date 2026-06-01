@@ -29,7 +29,8 @@ interface RuleListToolbarProps {
   isExpanded: boolean;
   operatorName: Operator;
   archivedRules: ArchivedRule[];
-  schemaIndex: number;
+  schemaId: number;
+  schemaName: string;
   handleSelectedRuleChange: (selectedRule: RuleIndex) => void;
   handleAddRule: (
     operator: Operator,
@@ -48,7 +49,8 @@ interface RuleListToolbarProps {
  * @param {boolean} props.isExpanded - indicates if a rule is currently expanded or collapsed
  * @param {Operator} props.operatorName - (and, or, not) The operator of the rule
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
- * @param {number} props.schemaIndex - The index of the currently selected schema
+ * @param {number} props.schemaId - The id of the currently selected schema
+ * @param {string} props.schemaName - The name of the schema of the rule
  * @param {Function} props.handleSelectedRuleChange - Called when the user selects a rule of the list
  * @param {Function} props.handleAddRule - Called when a subrule must be added to an existing rule
  * @param {Function} props.handleDeleteRule - Called when a subrule must be deleted from an existing rule
@@ -61,7 +63,8 @@ export default function RuleListToolbar({
   isExpanded,
   operatorName,
   archivedRules,
-  schemaIndex,
+  schemaId,
+  schemaName,
   handleSelectedRuleChange,
   handleAddRule,
   handleDeleteRule,
@@ -158,7 +161,8 @@ export default function RuleListToolbar({
         isOpen={isOpen}
         onClose={onClose}
         archivedRules={archivedRules}
-        schemaIndex={schemaIndex}
+        schemaId={schemaId}
+        schemaName={schemaName}
         handleAddEmptyRule={handleAddEmptyRule}
         handleLoadArchiveRule={handleLoadArchiveRule}
       />

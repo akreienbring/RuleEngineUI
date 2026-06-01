@@ -33,6 +33,7 @@ import {
 
 interface RuleTableRowProps {
   rule: SCentralRule;
+  schemaName: string;
   selected: boolean;
   handleClick: () => void;
   handleDeleteRule: (ruleid: number) => void;
@@ -44,6 +45,7 @@ interface RuleTableRowProps {
   Presents a single row in the user table
   @param {RuleTableRowProps} props
   @param {SCentralRule} props.rule with the values of the current row
+  @param {string} props.schemaName - The name of the schema of the rule
   @param {boolean} props.selected true if the row is selected
   @param {Function} props.handleClick Called when clicking the checkbox of a rule entry
   @param {Function} props.handleDeleteRule Called when a rule must be deleted
@@ -53,6 +55,7 @@ interface RuleTableRowProps {
 */
 export default function UserTableRow({
   rule,
+  schemaName,
   selected,
   handleClick,
   handleDeleteRule,
@@ -122,7 +125,7 @@ export default function UserTableRow({
           <Typography>{rule.description}</Typography>
         </TableCell>
         <TableCell>
-          <Typography>{rule.schema}</Typography>
+          <Typography>{schemaName}</Typography>
         </TableCell>
         <TableCell>
           <Typography>{rule.operator}</Typography>

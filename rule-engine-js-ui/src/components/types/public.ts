@@ -18,8 +18,7 @@ export interface ArchivedRule {
   ruleid: number;
   name: string;
   description: string;
-  schema: string;
-  schemaIndex: number;
+  schemaId: number;
   operator: Operator;
   rule: RuleExpression;
 }

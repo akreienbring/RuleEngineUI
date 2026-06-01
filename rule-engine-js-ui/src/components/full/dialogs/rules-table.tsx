@@ -18,29 +18,30 @@ import { createUUID } from "@src/components/utils/general";
 
 interface RulesTableProps {
   archivedRules: ArchivedRule[];
-  schemaIndex?: number;
+  schemaId?: number;
+  schemaName?: string;
   handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
 
 /**
  * A table that contains already existing rules that can be loaded. The rule may be loaded as a toprule or as a subrule.
- * For loading as a subrule, the given schemaIndex restricts the offered rules to the schema of the parent rule.
+ * For loading as a subrule, the given schemaId restricts the offered rules to the schema of the parent rule.
  * @param {RulesTableProps} props
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
- * @param {number} [props.schemaIndex] - If given, indicates that the rule will be added to a parent rule as subrule.
+ * @param {number} [props.schemaId] - If given, indicates that the rule will be added to a parent rule as subrule.
+ * @param {string} [props.schemaName] - If given, the name of the schema of the rule
  * @param {Function} props.handleLoadArchiveRule - Called when an already existing rule is added as a subrule
  * @returns
  */
 export default function RulesTable({
   archivedRules,
-  schemaIndex,
+  schemaId,
+  schemaName,
   handleLoadArchiveRule,
 }: RulesTableProps) {
   let validRules = archivedRules;
-  if (typeof schemaIndex !== "undefined") {
-    validRules = archivedRules.filter(
-      (rule) => rule.schemaIndex === schemaIndex,
-    );
+  if (typeof schemaId !== "undefined") {
+    validRules = archivedRules.filter((rule) => rule.schemaId === schemaId);
   }
 
   return (
@@ -68,7 +69,7 @@ export default function RulesTable({
                 {archivedRule.name}
               </TableCell>
               <TableCell align="right">{archivedRule.description}</TableCell>
-              <TableCell align="right">{archivedRule.schema}</TableCell>
+              <TableCell align="right">{schemaName}</TableCell>
               <TableCell align="right">{archivedRule.operator}</TableCell>
             </TableRow>
           ))}
@@ -77,7 +78,7 @@ export default function RulesTable({
       {validRules.length === 0 && (
         <Box sx={{ width: 1, justifyContent: "center" }}>
           <Typography>
-            {`There is no rule ${typeof schemaIndex !== "undefined" ? "for the parentrule schema" : ""}`}
+            {`There is no rule ${typeof schemaId !== "undefined" ? "for the parentrule schema" : ""}`}
           </Typography>
         </Box>
       )}

@@ -47,6 +47,7 @@ const commands: CommandBuffer = {
 interface TestDialogProps {
   isOpenTest: boolean;
   rule: SCentralRule;
+  schemaName: string;
   testObj: object;
   onCloseTest: () => void;
 }
@@ -58,6 +59,7 @@ interface TestDialogProps {
  * @param {TestDialogProps} props
  * @param {boolean} props.isOpenTest - If true, the dialog is open
  * @param {SCentralRule} props.rule - The rule that should be tested
+ * @param {string} props.schemaName - The name of the schema of the rule
  * @param {object} props.testObj - The object that should be used to test the rule
  * @param {Function} props.onCloseTest - Called when the dialog should be closed
  * @returns {JSX.Element}
@@ -65,19 +67,16 @@ interface TestDialogProps {
 export default function TestDialog({
   isOpenTest,
   rule,
+  schemaName,
   testObj,
   onCloseTest,
 }: TestDialogProps): JSX.Element {
-  console.log("Rule:", JSON.stringify(rule));
-
   const evaluationResult = ruleEngine.evaluateExpr(
     rule.rule,
     testObj as EvaluationContext,
   ) as EvaluationResult;
 
-  console.log("Evaluation Result:", JSON.stringify(evaluationResult));
-
-  const isTestValid = evaluationResult.success;
+   const isTestValid = evaluationResult.success;
 
   let commandResults: string[] = [];
   if (isTestValid && typeof rule.commandsDevices !== "undefined") {
@@ -95,7 +94,7 @@ export default function TestDialog({
       <DialogContent>
         <Stack direction="row" spacing={2}>
           <Stack>
-            <BorderBox title={`Rule (schema: ${rule.schema})`}>
+            <BorderBox title={`Rule (schema: ${schemaName})`} sx={{ pl: 3 }}>
               <Box sx={{ height: 300, p: 0, m: 0 }}>
                 <SimpleRuleList
                   topRule={rule.rule}
@@ -109,6 +108,7 @@ export default function TestDialog({
               title="Applied to object"
               isValid={isTestValid}
               icon={isTestValid ? VerifiedRounded : DoNotDisturbOnRounded}
+              sx={{ pl: 3 }}
             >
               <Box
                 sx={{
@@ -126,6 +126,7 @@ export default function TestDialog({
               title="Command Results"
               isValid={isTestValid}
               icon={isTestValid ? VerifiedRounded : DoNotDisturbOnRounded}
+              sx={{ pl: 3 }}
             >
               <Box sx={{ height: 300, p: 0, m: 0 }}>
                 <DeviceHubRounded />

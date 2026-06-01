@@ -154,7 +154,6 @@ export default function RuleDesigner(): JSX.Element {
    * @param {number} cdIndex - The index in the list where the new command will be placed.
    */
   const handleCommandChange = (command: string, cdIndex: number) => {
-    console.log(command, cdIndex);
     const newCommandsDevices = [...commandsDevices];
     newCommandsDevices[cdIndex].command = command;
     setCommandsDevices(newCommandsDevices);

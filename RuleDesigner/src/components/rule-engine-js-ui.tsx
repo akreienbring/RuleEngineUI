@@ -107,12 +107,12 @@ export default function RuleEngineJSUI({
    * to input name and description if isSaveRule is true.
    * @param {RuleExpression} rule - The rule that must be saved
    * @param {Operator} operator - The top operator of the rule (and, or, not)
-   * @param {number} schemaIndex - The index of the schema that was used to build the rule
+   * @param {number} schemaId - The id of the schema that was used to build the rule
    */
   const prepareSaveRule = (
     rule: RuleExpression,
     operator: Operator,
-    schemaIndex: number,
+    schemaId: number,
   ) => {
     if (isSaveRule) {
       //this will open the dialog that provides inputs for name and description
@@ -120,8 +120,7 @@ export default function RuleEngineJSUI({
         ruleid: 0,
         name: "",
         description: "",
-        schema: schemas[schemaIndex].name,
-        schemaIndex,
+        schemaId,
         operator,
         rule,
       });
@@ -131,8 +130,7 @@ export default function RuleEngineJSUI({
         ruleid: 0,
         name: "",
         description: "",
-        schema: schemas[ruleToSave!.schemaIndex].name,
-        schemaIndex: ruleToSave!.schemaIndex,
+        schemaId: ruleToSave!.schemaId,
         operator: ruleToSave!.operator,
         rule: ruleToSave!.rule,
       };
@@ -164,8 +162,7 @@ export default function RuleEngineJSUI({
       ruleid: 0,
       name,
       description,
-      schema: schemas[ruleToSave!.schemaIndex].name,
-      schemaIndex: ruleToSave!.schemaIndex,
+      schemaId: ruleToSave!.schemaId,
       operator: ruleToSave!.operator,
       rule: ruleToSave!.rule,
     };

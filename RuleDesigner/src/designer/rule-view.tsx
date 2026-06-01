@@ -267,6 +267,7 @@ export default function RuleView({
                   <RuleTableRow
                     key={rule.ruleid}
                     rule={rule}
+                    schemaName={schemas[rule.schemaId].name}
                     selected={selected.indexOf(rule.name) !== -1}
                     handleClick={() => handleClick(rule.name)}
                     handleDeleteRule={handleDeleteRule}
@@ -313,6 +314,7 @@ export default function RuleView({
         <TestDialog
           isOpenTest={isOpenTest.open}
           rule={isOpenTest.rule}
+          schemaName={schemas[isOpenTest.rule.schemaId].name}
           testObj={testObj}
           onCloseTest={onCloseTest}
         />

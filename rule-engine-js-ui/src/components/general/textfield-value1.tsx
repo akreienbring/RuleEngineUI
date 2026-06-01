@@ -30,7 +30,7 @@ interface TextFieldValue1Props {
  * @param {string[]} props.propertyMenuItems If isPropertySelect is true, the list of properties to select from
  * @param {number} props.inputWidth The width of the input field(s)
  * @param {Function} props.handleValueChange Called when the value of the input field is changed
- * @returns {JSX.Element} The TextField for the value2 of a property
+ * @returns {JSX.Element} The TextField for the value1 of a property
  */
 export default function TextFieldValue1({
   property,
@@ -72,7 +72,6 @@ export default function TextFieldValue1({
 
   return (
     <TextField
-      key={createUUID()}
       error={typeof property?.value1Error !== "undefined"}
       label={
         typeof property?.value1Error !== "undefined" ? property.value1Error : ""

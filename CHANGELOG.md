@@ -2,7 +2,7 @@
 
 ##### 28.05.2026
 
-**rule-engine-js-ui (0.0.11)**
+**rule-engine-js-ui (0.0.14)**
 
 - fixed: package and missing type errors :<br>
 

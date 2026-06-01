@@ -8,19 +8,19 @@ import { createUUID } from "@src/components/utils/general";
 
 interface SchemaSelectProps {
   schemas: InputSchema[];
-  schemaIndex: number;
-  handleSchemaSelect: (schemaIndex: number) => void;
+  schemaId: number;
+  handleSchemaSelect: (schemaId: number) => void;
 }
 /**
  * Allows to select a schema from a list
  * @param {SchemaSelectProps} props
- * @param {number} props.schemaIndex - The index of the currently selected JSON schema
+ * @param {number} props.schemaId - The id of the currently selected JSON schema
  * @param {InputSchema[]} props.schemas - Different JSON schemas for selecting properties
  * @returns
  */
 export default function SchemaSelect({
   schemas,
-  schemaIndex,
+  schemaId,
   handleSchemaSelect,
 }: SchemaSelectProps): JSX.Element {
   return (
@@ -30,7 +30,7 @@ export default function SchemaSelect({
       size="small"
       variant="filled"
       select
-      value={schemaIndex}
+      value={schemaId}
       sx={{ width: 200, zIndex: "tooltip" }}
     >
       {schemas.map((schema, index) => (

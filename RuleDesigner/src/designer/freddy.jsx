@@ -83,9 +83,9 @@ export default function Freddy() {
     it will set the proper image of Fredy
   */
   statefulEngine.on("triggered", (event) => {
-    console.log(`Rule ${event.ruleId} was triggered!`);
-    console.log("Previous state:", event.previousState);
-    console.log("Current state:", event.currentState);
+    //console.log(`Rule ${event.ruleId} was triggered!`);
+    //console.log("Previous state:", event.previousState);
+    //console.log("Current state:", event.currentState);
     const newDog = { ...event.context };
     if (newDog.state === "awake") {
       newDog.image = "/assets/dog_awake.png";
@@ -104,7 +104,6 @@ export default function Freddy() {
    * @param {string} state - The current state of the dog
    */
   const handleDog = (state) => {
-    console.log(state);
     const newDog = { ...dog };
 
     if (state === "sleeping") {

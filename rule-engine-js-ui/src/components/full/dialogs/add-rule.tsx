@@ -19,7 +19,8 @@ interface AddRuleProps {
   isOpen: boolean;
   onClose: () => void;
   archivedRules: ArchivedRule[];
-  schemaIndex: number;
+  schemaId: number;
+  schemaName: string;
   handleAddEmptyRule: (operator: Operator) => void;
   handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
@@ -30,7 +31,8 @@ interface AddRuleProps {
  * @param {boolean} props.isOpen - If true the dialog is opened else closed
  * @param {Function} props.onClose - Called when the dialog must be or is closed
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a  rule
- * @param {number} props.schemaIndex - The index of the currently selected schema
+ * @param {number} props.schemaId - The id of the currently selected schema
+ * @param {string} props.schemaName - The name of the schema of the rule
  * @param {Function} props.handleAddEmptyRule - Called when an empty rule is added as a subrule
  * @param {Function} props.handleLoadArchiveRule - Called when an already existing rule is added as a subrule
  * @returns
@@ -39,7 +41,8 @@ export default function AddRule({
   isOpen,
   onClose,
   archivedRules,
-  schemaIndex,
+  schemaId,
+  schemaName,
   handleAddEmptyRule,
   handleLoadArchiveRule,
 }: AddRuleProps): JSX.Element {
@@ -73,7 +76,8 @@ export default function AddRule({
           {currentTabIndex === 1 && (
             <RulesTable
               archivedRules={archivedRules}
-              schemaIndex={schemaIndex}
+              schemaId={schemaId}
+              schemaName={schemaName}
               handleLoadArchiveRule={handleLoadArchiveRule}
             />
           )}

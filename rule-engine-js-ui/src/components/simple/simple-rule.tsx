@@ -27,7 +27,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SchemaSelect from "@src/components/general/schema-select";
 import LogicSelect from "@src/components/general/logic-select";
-import SimplePropertyList from "./simple-property-list";
+import PropertyList from "@src/components/general/property-list";
 import SimpleRuleList from "./simple-rule-list";
 import { createProperties } from "@src/components/utils/property-utils";
 import { buildRule } from "@src/components/utils/rule-utils-js";
@@ -68,13 +68,13 @@ export default function SimpleRule({
   handleUpdateRule,
   archivedRule,
 }: SimpleRuleProps): JSX.Element {
-  const [schemaIndex, setSchemaIndex] = useState(
-    typeof archivedRule !== "undefined" ? archivedRule.schemaIndex : 0,
+  const [schemaId, setSchemaIndex] = useState(
+    typeof archivedRule !== "undefined" ? archivedRule.schemaId : 0,
   );
   const [properties, setProperties] = useState<PropertyBuffer>(
     typeof archivedRule !== "undefined"
-      ? createProperties(schemas[schemaIndex].schema, null, archivedRule)
-      : createProperties(schemas[schemaIndex].schema, null, null),
+      ? createProperties(schemas[schemaId].schema, null, archivedRule)
+      : createProperties(schemas[schemaId].schema, null, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>(
     typeof archivedRule !== "undefined"
@@ -111,11 +111,8 @@ export default function SimpleRule({
   const onOpen = () => {
     if (isOpenRule) {
       if (typeof archivedRule === "undefined") {
-        console.log(`Setting states for a new rule`);
         setSchemaIndex(0);
-        setProperties(
-          createProperties(schemas[schemaIndex].schema, null, null),
-        );
+        setProperties(createProperties(schemas[schemaId].schema, null, null));
         setRuleName("");
         setRuleDescription("");
         setIsPropertiesValid(false);
@@ -125,11 +122,10 @@ export default function SimpleRule({
           and: [],
         });
       } else {
-        console.log(`Setting states for rule ${archivedRule.name}`);
-        setSchemaIndex(archivedRule.schemaIndex);
+        setSchemaIndex(archivedRule.schemaId);
         setProperties(
           createProperties(
-            schemas[archivedRule.schemaIndex].schema,
+            schemas[archivedRule.schemaId].schema,
             null,
             archivedRule,
           ),
@@ -156,9 +152,8 @@ export default function SimpleRule({
    * and closes the dialog.
    */
   const onClose = () => {
-    console.log("Resetting states");
     setSchemaIndex(0);
-    setProperties(createProperties(schemas[schemaIndex].schema, null, null));
+    setProperties(createProperties(schemas[schemaId].schema, null, null));
     setRuleName("");
     setRuleDescription("");
     setIsPropertiesValid(false);
@@ -201,8 +196,7 @@ export default function SimpleRule({
       ruleid: 0,
       name: ruleName,
       description: ruleDescription,
-      schema: schemas[schemaIndex].name,
-      schemaIndex: schemaIndex,
+      schemaId: schemaId,
       operator: topOperator,
       rule: topRule,
     };
@@ -220,8 +214,7 @@ export default function SimpleRule({
       ruleid,
       name: ruleName,
       description: ruleDescription,
-      schema: schemas[schemaIndex].name,
-      schemaIndex: schemaIndex,
+      schemaId: schemaId,
       operator: topOperator,
       rule: topRule,
     };
@@ -231,11 +224,11 @@ export default function SimpleRule({
 
   /**
    * When the schema is changed, then the property buffer must be rebuild
-   * @param {number} schemaIndex - The new schema index.
+   * @param {number} schemaId - The new schema index.
    */
-  const handleSchemaSelect = (schemaIndex: number) => {
-    setSchemaIndex(schemaIndex);
-    setProperties(createProperties(schemas[schemaIndex].schema, null, null));
+  const handleSchemaSelect = (schemaId: number) => {
+    setSchemaIndex(schemaId);
+    setProperties(createProperties(schemas[schemaId].schema, null, null));
     setTopRule({
       and: [],
     });
@@ -334,7 +327,9 @@ export default function SimpleRule({
       disableRestoreFocus
     >
       <DialogTitle>
-        {typeof archivedRule !== "undefined" ? "Edit" : "Create"} Rule
+        {typeof archivedRule !== "undefined"
+          ? `Edit Rule: ${archivedRule.name}`
+          : "Create Rule"}
       </DialogTitle>
       <DialogContent>
         <Accordion defaultExpanded>
@@ -345,10 +340,11 @@ export default function SimpleRule({
             <Stack spacing={2}>
               <SchemaSelect
                 schemas={schemas}
-                schemaIndex={schemaIndex}
+                schemaId={schemaId}
                 handleSchemaSelect={handleSchemaSelect}
               />
-              <SimplePropertyList
+              <PropertyList
+                isSimple={true}
                 properties={properties}
                 updateProperties={updateProperties}
               />

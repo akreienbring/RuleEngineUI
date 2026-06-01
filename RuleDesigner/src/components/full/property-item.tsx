@@ -112,9 +112,8 @@ export default function PropertyItem({
   };
 
   return (
-    <Stack key={createUUID()} direction="row" sx={{ m: -1, mb: -0.5, pl: -1 }}>
+    <Stack direction="row" sx={{ m: -1, mb: -0.5, pl: -1 }}>
       <ListItem
-        key={createUUID()}
         sx={{
           display: isExpanded ? "block" : "none",
           pl: level * indent,
@@ -123,7 +122,6 @@ export default function PropertyItem({
         }}
       >
         <ListItemButton
-          key={createUUID()}
           onClick={() => handlePropCheck(bufferKey)}
           sx={{ pt: -2, pb: -2 }}
         >
@@ -136,19 +134,14 @@ export default function PropertyItem({
             disableRipple
           />
           <ListItemText
-            key={createUUID()}
             primary={property.key}
             secondary={property.type}
             sx={{ minWidth: 100 }}
           />
         </ListItemButton>
       </ListItem>
-      <Box
-        key={createUUID()}
-        sx={[isExpanded ? { display: "block" } : { display: "none" }]}
-      >
+      <Box sx={[isExpanded ? { display: "block" } : { display: "none" }]}>
         <Stack
-          key={createUUID()}
           direction="row"
           spacing={2}
           sx={{
@@ -161,7 +154,6 @@ export default function PropertyItem({
           }}
         >
           <OperatorSelect
-            key={createUUID()}
             property={property}
             bufferKey={bufferKey}
             handlePropOperatorChange={handlePropOperatorChange}
@@ -169,7 +161,6 @@ export default function PropertyItem({
 
           {!isNoCompareOperator && property?.checked && (
             <TextFieldValue1
-              key={createUUID()}
               property={property}
               bufferKey={bufferKey}
               isPropertySelect={isPropertySelect}
@@ -181,7 +172,6 @@ export default function PropertyItem({
 
           {property.operators[0] === "between" && (
             <TextFieldValue2
-              key={createUUID()}
               property={property}
               bufferKey={bufferKey}
               isPropertySelect={isPropertySelect}
