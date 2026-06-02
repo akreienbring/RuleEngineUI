@@ -16,7 +16,6 @@ import PropertyList from "../general/property-list";
 import CreateRuleToolbar from "./create-rule-toolbar";
 import { createUUID } from "@src/components/utils/general";
 import { buildRule } from "@src/components/utils/rule-utils-js";
-import { validateProperty } from "@src/components/utils/property-utils";
 import ObjectList from "./object-list";
 import BorderBox from "./border-box";
 import {
@@ -28,6 +27,7 @@ import {
 import { List, Box, TextField, Stack } from "@mui/material";
 import { DoNotDisturbOnRounded, VerifiedRounded } from "@mui/icons-material";
 import { createProperties } from "@src/components/utils/property-utils";
+import { useValidation } from "@src/components/general/use-validation";
 
 interface CreateRuleProps {
   schemas: InputSchema[];
@@ -60,6 +60,7 @@ export default function CreateRule({
   archivedRules,
   prepareSaveRule,
 }: CreateRuleProps): JSX.Element {
+  const { validateProperties } = useValidation();
   const [schemaId, setSchemaIndex] = useState(0);
   const [properties, setProperties] = useState<PropertyBuffer>(
     createProperties(schemas[schemaId].schema, testObj, null),
@@ -410,19 +411,7 @@ export default function CreateRule({
    * @param {PropertyBuffer} properties - The changed properties
    */
   const updateProperties = (properties: PropertyBuffer) => {
-    let valid = true;
-    Object.values(properties).forEach((property) => {
-      if (property.checked) {
-        validateProperty(property, property.value1);
-
-        if (
-          typeof property.value1Error !== "undefined" ||
-          (property.operators[0] === "between" &&
-            typeof property.value2Error !== "undefined")
-        )
-          valid = false;
-      }
-    });
+    validateProperties(properties);
 
     setProperties(properties);
 

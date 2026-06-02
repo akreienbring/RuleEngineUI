@@ -10,7 +10,6 @@ import { getNoCompareOperators } from "@src/components/utils/operator-utils";
 import OperatorSelect from "../general/operator-select";
 import TextFieldValue1 from "../general/textfield-value1";
 import TextFieldValue2 from "../general/textfield-value2";
-import { createUUID } from "../utils/general";
 
 interface SimplePropertyItemProps {
   property: Property;
@@ -25,7 +24,18 @@ interface SimplePropertyItemProps {
     path: string,
   ) => void;
 }
-export default function SimplePropertyItem({
+
+/**
+ * A PropertyItem represents a singele property of the JSON schema.
+ * It allows the user to select an operator and a value to compare the property with.
+ * @param {PropertyItemProps} props
+ * @param {Property} props.property The property object containing current and original values and operators.
+ * @param {string} props.bufferKey The key of the property in the buffer
+ * @param {Function} props.handlePropCheck Called when the checkbox of the property is toggled
+ * @param {Function} props.handlePropOperatorChange Called when the operator of the property is changed
+ * @param {Function} props.handleValueChange Called when the value of the property is changed
+ * @returns {JSX.Element | null}
+ */ export default function SimplePropertyItem({
   property,
   bufferKey,
   handlePropCheck,
@@ -39,8 +49,13 @@ export default function SimplePropertyItem({
   );
 
   return (
-    <Stack direction="row" sx={{ mt: -2, mb: -2, pt: -2, pb: -2 }}>
+    <Stack
+      key={`ST1_${bufferKey}`}
+      direction="row"
+      sx={{ mt: -2, mb: -2, pt: -2, pb: -2 }}
+    >
       <ListItem
+        key={`LI_${bufferKey}`}
         dense
         disablePadding
         sx={{
@@ -49,9 +64,12 @@ export default function SimplePropertyItem({
           width: "fit-content",
         }}
       >
-        <ListItemButton onClick={() => handlePropCheck(bufferKey)}>
+        <ListItemButton
+          key={`LIB_${bufferKey}`}
+          onClick={() => handlePropCheck(bufferKey)}
+        >
           <Checkbox
-            key={createUUID()}
+            key={`CB_${bufferKey}`}
             edge="start"
             checked={
               typeof property.checked !== "undefined" ? property.checked : true
@@ -59,6 +77,7 @@ export default function SimplePropertyItem({
             disableRipple
           />
           <ListItemText
+            key={`LIT_${bufferKey}`}
             primary={property.key}
             secondary={property.type}
             sx={{ minWidth: 145 }}
@@ -66,6 +85,7 @@ export default function SimplePropertyItem({
         </ListItemButton>
       </ListItem>
       <Stack
+        key={`ST 2_${bufferKey}`}
         direction="row"
         spacing={2}
         sx={{

@@ -11,7 +11,7 @@ import ObjectItem from "../full/object-item";
 import PropertyItem from "../full/property-item";
 import SimplePropertyItem from "@src/components/simple/simple-property-item";
 import { getOperatorByType } from "@src/components/utils/operator-utils";
-import { validateProperty } from "@src/components/utils/property-utils";
+import { useValidation } from "@src/components/general/use-validation";
 import { createUUID } from "../utils/general";
 
 interface PropertyListProps {
@@ -37,6 +37,7 @@ export default function PropertyList({
   properties,
   updateProperties,
 }: PropertyListProps): JSX.Element {
+  const { validateProperty } = useValidation();
   const [expandedObjects, setExpandedObjects] = useState<boolean[]>([]);
 
   const elements: JSX.Element[] = [];

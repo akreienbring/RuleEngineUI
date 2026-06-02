@@ -1,8 +1,8 @@
 ### Release v0.0.1
 
-##### 28.05.2026
+##### 02.06.2026
 
-**rule-engine-js-ui (0.0.14)**
+**rule-engine-js-ui (0.0.17)**
 
 - fixed: package and missing type errors :<br>
 

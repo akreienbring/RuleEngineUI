@@ -17,6 +17,13 @@ interface LogicSelectProps {
   ) => void;
 }
 
+/**
+ * Component that allows the user to select the logic operator (AND, OR, NOT) for the rule.
+ * @param {LogicSelectProps} props
+ * @param {Operator} props.operator The currently selected operator
+ * @param {Function} props.handleRuleOperatorChange Called when the selected operator is changed
+ * @returns {JSX.Element} The LogicSelect component
+ */
 export default function LogicSelect({
   operator,
   handleRuleOperatorChange,

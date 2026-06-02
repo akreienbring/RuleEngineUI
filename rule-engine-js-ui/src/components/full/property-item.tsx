@@ -17,7 +17,6 @@ import {
   ListItemText,
   ListItemButton,
 } from "@mui/material";
-import { createUUID } from "../utils/general";
 
 interface PropertyItemProps {
   isExpanded: boolean;
@@ -46,7 +45,7 @@ interface PropertyItemProps {
  * @param {PropertyItemProps} props
  * @param {boolean} props.isExpanded If true all subproperties of the property are shown, otherwise they are hidden
  * @param {number} props.level The level of the property in the schema (determines indentation)
- * @param {PropertyBuffer} props.properties The (object) buffer containing the properties of the JSON schema
+ * @param {Property} props.property The property object containing current and original values and operators.
  * @param {string} props.bufferKey The key of the property in the buffer
  * @param {Function} props.handlePropCheck Called when the checkbox of the property is toggled
  * @param {Function} props.handlePropOperatorChange Called when the operator of the property is changed
@@ -112,8 +111,13 @@ export default function PropertyItem({
   };
 
   return (
-    <Stack direction="row" sx={{ m: -1, mb: -0.5, pl: -1 }}>
+    <Stack
+      key={`ST1_${bufferKey}`}
+      direction="row"
+      sx={{ m: -1, mb: -0.5, pl: -1 }}
+    >
       <ListItem
+        key={`LI_${bufferKey}`}
         sx={{
           display: isExpanded ? "block" : "none",
           pl: level * indent,
@@ -122,11 +126,12 @@ export default function PropertyItem({
         }}
       >
         <ListItemButton
+          key={`LIB_${bufferKey}`}
           onClick={() => handlePropCheck(bufferKey)}
           sx={{ pt: -2, pb: -2 }}
         >
           <Checkbox
-            key={createUUID()}
+            key={`CB_${bufferKey}`}
             edge="start"
             checked={
               typeof property.checked !== "undefined" ? property.checked : true
@@ -134,14 +139,19 @@ export default function PropertyItem({
             disableRipple
           />
           <ListItemText
+            key={`LIT_${bufferKey}`}
             primary={property.key}
             secondary={property.type}
             sx={{ minWidth: 100 }}
           />
         </ListItemButton>
       </ListItem>
-      <Box sx={[isExpanded ? { display: "block" } : { display: "none" }]}>
+      <Box
+        key={`BOX_${bufferKey}`}
+        sx={[isExpanded ? { display: "block" } : { display: "none" }]}
+      >
         <Stack
+          key={`ST 2_${bufferKey}`}
           direction="row"
           spacing={2}
           sx={{
@@ -181,7 +191,6 @@ export default function PropertyItem({
             />
           )}
           <PropertyToolbar
-            key={createUUID()}
             property={property}
             bufferKey={bufferKey}
             isPropertySelect={isPropertySelect}
@@ -208,7 +217,7 @@ export default function PropertyItem({
             if (operatorIndex > 0)
               return (
                 <Chip
-                  key={createUUID()}
+                  key={`CHIP_${bufferKey}_${operatorIndex}`}
                   onDelete={() =>
                     handleDeleteOperator(bufferKey, operatorIndex)
                   }

@@ -31,8 +31,8 @@ import PropertyList from "@src/components/general/property-list";
 import SimpleRuleList from "./simple-rule-list";
 import { createProperties } from "@src/components/utils/property-utils";
 import { buildRule } from "@src/components/utils/rule-utils-js";
-import { validateProperty } from "@src/components/utils/property-utils";
 import { restoreSubrules } from "@src/components/utils/rule-utils-ts";
+import { useValidation } from "@src/components/general/use-validation";
 
 interface SimpleRuleProps {
   isOpenRule: boolean;
@@ -68,6 +68,7 @@ export default function SimpleRule({
   handleUpdateRule,
   archivedRule,
 }: SimpleRuleProps): JSX.Element {
+  const { validateProperties } = useValidation();
   const [schemaId, setSchemaIndex] = useState(
     typeof archivedRule !== "undefined" ? archivedRule.schemaId : 0,
   );
@@ -240,22 +241,8 @@ export default function SimpleRule({
    * @param {PropertyBuffer} properties - The changed properties
    */
   const updateProperties = (properties: PropertyBuffer) => {
-    let valid = true;
-    Object.values(properties).forEach((property) => {
-      if (property.checked) {
-        if (property.checked) {
-          validateProperty(property, property.value1);
-
-          if (
-            typeof property.value1Error !== "undefined" ||
-            (property.operators[0] === "between" &&
-              typeof property.value2Error !== "undefined")
-          )
-            valid = false;
-        }
-      }
-    });
-    setIsPropertiesValid(valid);
+    const isValid = validateProperties(properties);
+    setIsPropertiesValid(isValid);
 
     setProperties(properties);
     const newTopRule = buildRule(properties, topOperator) as RuleExpression;

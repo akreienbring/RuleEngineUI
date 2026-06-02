@@ -49,8 +49,8 @@ export default function TextFieldValue1({
   } else if (isPropertySelect) {
     selectValue = propertyMenuItems[0];
     menueItems.push(
-      ...propertyMenuItems.map((bufferKey) => (
-        <MenuItem key={bufferKey} value={bufferKey}>
+      ...propertyMenuItems.map((bufferKey, index) => (
+        <MenuItem key={`MI_${index}_${bufferKey}`} value={bufferKey}>
           {bufferKey}
         </MenuItem>
       )),
@@ -62,8 +62,8 @@ export default function TextFieldValue1({
   ) {
     selectValue = property.enum[0];
     menueItems.push(
-      ...property.enum.map((value) => (
-        <MenuItem key={value} value={value}>
+      ...property.enum.map((value, index) => (
+        <MenuItem key={`MI_${index}_${bufferKey}`} value={value}>
           {value}
         </MenuItem>
       )),
@@ -72,6 +72,7 @@ export default function TextFieldValue1({
 
   return (
     <TextField
+      key={`TF1_${bufferKey}`}
       error={typeof property?.value1Error !== "undefined"}
       label={
         typeof property?.value1Error !== "undefined" ? property.value1Error : ""

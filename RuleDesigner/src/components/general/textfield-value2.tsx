@@ -42,6 +42,7 @@ export default function TextFieldValue2({
 }: TextFieldValue2Props): JSX.Element {
   return (
     <TextField
+      key={`TF2_${bufferKey}`}
       error={typeof property?.value2Error !== "undefined"}
       label={
         typeof property?.value2Error !== "undefined" ? property.value2Error : ""
