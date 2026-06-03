@@ -15,10 +15,10 @@ import type {
   Addon,
   InputSchema,
   JSONSchema,
-} from "@src/components/types/public";
+} from "rule-engine-js-ui";
 import { createSchema } from "@omni-clm/genson-js";
-import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
-//import { RuleEngineJSUI } from "rule-engine-js-ui";
+//import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
+import { RuleEngineJSUI } from "rule-engine-js-ui";
 
 import RuleView from "@src/designer/rule-view";
 import Freddy from "@src/designer/freddy";
@@ -66,7 +66,14 @@ const dogSchema = {
     name: { type: "string" },
     age: { type: "integer" },
     hobbies: { type: "array", items: { type: "string" } },
-    favoriteFood: { enum: ["pizza", "taco", "fries"] },
+    dances: { enum: ["Salsa", "Kizomba", "Bachata"] },
+    favoriteFood: {
+      enum: [
+        { name: "pizza", value: "1" },
+        { name: "taco", value: "2" },
+        { name: "fries", value: "3" },
+      ],
+    },
     hunger: { type: "number" },
   },
   required: ["name", "age"],

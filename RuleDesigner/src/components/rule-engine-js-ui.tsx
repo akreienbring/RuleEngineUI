@@ -11,7 +11,7 @@ import type {
   ArchivedRule,
   Addon,
   InputSchema,
-} from "@src/components/types/public";
+} from "rule-engine-js-ui";
 import CreateRule from "./full/create-rule";
 import SimpleRule from "./simple/simple-rule";
 import {

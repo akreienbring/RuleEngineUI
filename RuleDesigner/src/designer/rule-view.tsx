@@ -3,11 +3,9 @@
   see: https://stackoverflow.com/questions/38548039/can-you-store-javascript-in-a-db-and-then-execute-it-later-time
 */
 import { type JSX, useState } from "react";
-import type {
-  ArchivedRule,
-  Addon,
-  InputSchema,
-} from "@src/components/types/public";
+import type { ArchivedRule, Addon, InputSchema } from "rule-engine-js-ui";
+import { RuleEngineJSUI } from "rule-engine-js-ui";
+//import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 import {
   Card,
   Table,
@@ -27,8 +25,6 @@ import TableEmptyRows from "./table-empty-rows";
 import RuleTableToolbar from "./rule-table-toolbar";
 import { applyRuleFilter } from "./rule-table-utils";
 import { emptyRows, getComparator } from "@src/utils/sort-array";
-import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
-//import { RuleEngineJSUI } from "rule-engine-js-ui";
 import TestDialog from "./test-dialog";
 
 interface RuleViewProps {

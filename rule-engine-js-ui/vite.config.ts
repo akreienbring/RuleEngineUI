@@ -8,7 +8,6 @@ export default defineConfig({
   plugins: [
     react(),
     dts({
-      insertTypesEntry: true,
       tsconfigPath: "./tsconfig.json",
     }),
   ],
@@ -24,7 +23,10 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "RuleEngineJSUI",
-      fileName: "rule-engine-js-ui",
+      fileName: (format) => {
+        if (format === "es") return "index.mjs";
+        return `index.js`;
+      },
       formats: ["es"],
     },
     rollupOptions: {

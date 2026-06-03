@@ -9,7 +9,7 @@
 */
 
 import { type JSX, useState, useEffect } from "react";
-import type { ArchivedRule, InputSchema } from "@src/components/types/public";
+import type { ArchivedRule, InputSchema } from "rule-engine-js-ui";
 import { EvaluationResult, RuleExpression } from "rule-engine-js";
 import RuleList from "./rule-list";
 import PropertyList from "../general/property-list";

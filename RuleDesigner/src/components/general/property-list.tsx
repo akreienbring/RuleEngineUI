@@ -101,7 +101,9 @@ export default function PropertyList({
       }
     } else {
       if (!isSecond) {
-        validateProperty(property, value);
+        // TODO: Really validate already here or is updateProperties enough to validate the whole rule after every change?
+        //validateProperty(property, value);
+        property.value1 = value;
       } else {
         if (value !== "" && !isNaN(Number(value))) {
           property.value2 = Number(value);

@@ -30,7 +30,13 @@ declare global {
     | "changedFrom"
     | "changedTo";
 
-  type PropertyType = "number" | "string" | "boolean" | "array" | "null";
+  type PropertyType =
+    | "number"
+    | "string"
+    | "boolean"
+    | "array"
+    | "null"
+    | "object";
 
   type Property = {
     key: string;
@@ -45,7 +51,7 @@ declare global {
     checked: boolean;
     origChecked: boolean;
     level: number;
-    enum?: string[] | number[];
+    enum?: string[] | number[] | object[];
   };
 
   type PropertyBuffer = {
@@ -68,6 +74,12 @@ declare global {
     operators: object[];
     operatorIndex: number;
     subrule: Subrule;
+  };
+
+  type JSONProperty = {
+    type?: string;
+    const?: string | number | boolean;
+    enum?: (string | number | { name: string; value: string | number })[];
   };
 }
 

@@ -55,14 +55,28 @@ export default function TextFieldValue1({
         </MenuItem>
       )),
     );
-  } else if (
-    typeof property.enum !== "undefined" &&
-    (property.operators[0] === "changedFrom" ||
-      property.operators[0] === "changedTo")
-  ) {
-    selectValue = property.enum[0];
+  } else if (property.enum && typeof property.enum[0] === "object") {
+    const enumItems = property.enum as Array<{
+      name: string;
+      value: string | number;
+    }>;
+    //selectValue = enumItems[0].value;
     menueItems.push(
-      ...property.enum.map((value, index) => (
+      ...enumItems.map((item, index) => (
+        <MenuItem key={`MI_${index}_${bufferKey}`} value={item.value}>
+          {item.name}
+        </MenuItem>
+      )),
+    );
+  } else if (
+    property.enum &&
+    typeof property.enum[0] !== "object" &&
+    typeof property.enum[0] !== "undefined"
+  ) {
+    const enumValues = property.enum as Array<string | number>;
+    //selectValue = enumValues[0];
+    menueItems.push(
+      ...enumValues.map((value, index) => (
         <MenuItem key={`MI_${index}_${bufferKey}`} value={value}>
           {value}
         </MenuItem>

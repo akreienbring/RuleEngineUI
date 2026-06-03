@@ -23,12 +23,6 @@ export interface ArchivedRule {
   rule: RuleExpression;
 }
 
-export type JSONProperty = {
-  type?: string;
-  const?: string | number | boolean;
-  enum?: (string | number)[];
-};
-
 export type JSONSchema = {
   type: string;
   properties: { [key: string]: JSONProperty };

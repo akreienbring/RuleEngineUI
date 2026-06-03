@@ -11,6 +11,5 @@ export type {
   ArchivedRule,
   Addon,
   InputSchema,
-  JSONProperty,
   JSONSchema,
 } from "./components/types/public";

@@ -15,14 +15,14 @@ const ruleEngine = createRuleEngine();
  * Builds a NEW rule based on the (JSON schema) properties in the property buffer.
  * For each checked property an operator (e.g. eq, neq..) is generated and inserted in the rule
  * TODO: achieve the same in Typescript
- * @param {PropertyBuffer} propertyBuffer - holds information of the properties
+ * @param {PropertyBuffer} properties - holds information of the properties
  * @param {Operator} operator - the operator used to build the rule (and, or, not)
  * @returns {RuleExpression} The renerated Rule
  */
-export const buildRule = (propertyBuffer, operator) => {
+export const buildRule = (properties, operator) => {
   const newRule = { [operator]: [] };
 
-  Object.entries(propertyBuffer).forEach(([key, property]) => {
+  Object.entries(properties).forEach(([key, property]) => {
     if (property.checked) {
       property.operators.forEach((op) => {
         const isNoCompareOperator = getNoCompareOperators().includes(op);

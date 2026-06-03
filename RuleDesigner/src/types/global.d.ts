@@ -1,5 +1,5 @@
 import { RuleExpression } from "rule-engine-js";
-import type { ArchivedRule } from "@src/components/types/public";
+import type { ArchivedRule } from "rule-engine-js-ui";
 
 declare global {
   interface SCentralRule extends ArchivedRule {

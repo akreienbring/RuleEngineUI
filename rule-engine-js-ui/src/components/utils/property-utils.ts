@@ -6,29 +6,59 @@ import {
   getOperatorByType,
 } from "@src/components/utils/operator-utils";
 import { getValueByPath } from "@src/components/utils/rule-utils-js";
-import type {
-  ArchivedRule,
-  JSONProperty,
-  JSONSchema,
-} from "@src/components/types/public";
+import type { ArchivedRule, JSONSchema } from "@src/components/types/public";
 /**
  * JSONSchema property object can have 3 kinds of keys: const, enum, and type. If the type is not given,
  * it can be detected by the type of the value of const or the type of the first entry in enum.
  * @param {JSONProperty} propInfo - The JSONSchema property object
  * @returns {PropertyType} - The detected property type
  */
-const detectType = (propInfo: JSONProperty): PropertyType => {
+const detectTypeValue = (
+  propInfo: JSONProperty,
+): { propType: PropertyType; propValue: string } => {
   if (typeof propInfo.const !== "undefined") {
-    return typeof propInfo.const as PropertyType;
+    return {
+      propType: typeof propInfo.const as PropertyType,
+      propValue: propInfo.const as string,
+    };
   } else if (typeof propInfo.enum !== "undefined") {
-    return typeof propInfo.enum[0] as PropertyType;
+    let propType = typeof propInfo.enum[0] as PropertyType;
+    let propValue = propInfo.enum[0] as string;
+
+    if (propType === "object") {
+      /*
+        If the enum is an array of objects, the type and value can be detected by the first entry in the enum array that has a 'value' key. 
+        The type is then the type of the value of this key and the value is the value of this key. 
+        This allows to use enums with name and value, where name can be used for display and value as value for a dropdown box.
+        Example for a working JSON schema property:
+          favoriteFood: {
+            enum: [
+              { name: "pizza", value: "1" },
+              { name: "taco", value: "2" },
+              { name: "fries", value: "3" },
+           ],
+         }
+      */
+      const enumObject = Object.entries(propInfo.enum[0]).forEach(
+        ([key, value]) => {
+          if (key === "value") {
+            propType = typeof value as PropertyType;
+            propValue = value as string;
+          }
+        },
+      );
+    }
+    return { propType, propValue };
   } else {
     //convert 'integer' from JSON Schema to 'number'
-    return !propInfo.type
-      ? "null"
-      : propInfo.type === "integer"
-        ? "number"
-        : (propInfo.type as PropertyType);
+    return {
+      propType: !propInfo.type
+        ? "null"
+        : propInfo.type === "integer"
+          ? "number"
+          : (propInfo.type as PropertyType),
+      propValue: "",
+    };
   }
 };
 
@@ -64,13 +94,16 @@ export const createProperties = (
       if (!propInfo.type || propInfo.type !== "object") {
         const bufferKey = path ? `${path}.${propName}` : propName;
 
-        const propType = detectType(propInfo as JSONProperty);
+        const propTypeValue = detectTypeValue(propInfo as JSONProperty);
 
-        let value1: any;
+        let value1 =
+          typeof propTypeValue.propValue !== "undefined"
+            ? propTypeValue.propValue
+            : undefined;
         let value2: any;
         let checked = false;
         let operator = getOperatorByType(
-          propType,
+          propTypeValue.propType,
           typeof propInfo.enum !== "undefined",
           [],
         );
@@ -92,7 +125,7 @@ export const createProperties = (
                   );
                   if (isNoCompareOperator) {
                     operator = getOperatorByType(
-                      propType,
+                      propTypeValue.propType,
                       typeof propInfo.enum !== "undefined",
                       [],
                     );
@@ -104,7 +137,7 @@ export const createProperties = (
                     } else {
                       value1 = comparison[1];
                       operator = getOperatorByType(
-                        propType,
+                        propTypeValue.propType,
                         typeof propInfo.enum !== "undefined",
                         [],
                         value1,
@@ -119,15 +152,16 @@ export const createProperties = (
           /*
           If a test object was passed, check it for the used property name and value
           */
-          value1 = getValueByPath(testObj, bufferKey);
+          const testValue1 = getValueByPath(testObj, bufferKey);
 
-          if (typeof value1 !== "undefined") {
+          if (typeof testValue1 !== "undefined") {
             checked = true;
+            value1 = testValue1;
             operator = getOperatorByType(
-              propType,
+              propTypeValue.propType,
               typeof propInfo.enum !== "undefined",
               [],
-              value1,
+              testValue1,
             );
           }
         }
@@ -137,7 +171,7 @@ export const createProperties = (
           origValue1: value1,
           value1: value1,
           value2,
-          type: propType,
+          type: propTypeValue.propType,
           operators: [operator],
           origOperator: operator,
           checked,
