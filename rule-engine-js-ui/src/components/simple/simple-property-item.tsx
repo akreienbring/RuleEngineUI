@@ -6,7 +6,10 @@ import {
   Stack,
   Checkbox,
 } from "@mui/material";
-import { getNoCompareOperators } from "@src/components/utils/operator-utils";
+import {
+  getNoCompareOperators,
+  getStateOperators,
+} from "@src/components/utils/operator-utils";
 import OperatorSelect from "../general/operator-select";
 import TextFieldValue1 from "../general/textfield-value1";
 import TextFieldValue2 from "../general/textfield-value2";
@@ -48,6 +51,8 @@ interface SimplePropertyItemProps {
     property.operators[0],
   );
 
+  const isStateOperator = getStateOperators().includes(property.operators[0]);
+
   return (
     <Stack
       key={`ST1_${bufferKey}`}
@@ -72,14 +77,22 @@ interface SimplePropertyItemProps {
             key={`CB_${bufferKey}`}
             edge="start"
             checked={
-              typeof property.checked !== "undefined" ? property.checked : true
+              typeof property.isChecked !== "undefined"
+                ? property.isChecked
+                : true
             }
             disableRipple
           />
           <ListItemText
             key={`LIT_${bufferKey}`}
             primary={property.key}
-            secondary={property.type}
+            secondary={
+              typeof property.enum !== "undefined"
+                ? `${property.type} (enum)`
+                : property.isConst
+                  ? `${property.type} (const)`
+                  : `${property.type}`
+            }
             sx={{ minWidth: 145 }}
           />
         </ListItemButton>
@@ -94,7 +107,7 @@ interface SimplePropertyItemProps {
           justifyContent: "flex-start",
           mb: 1,
           mt: 1,
-          visibility: property.checked ? "visible" : "hidden",
+          visibility: property.isChecked ? "visible" : "hidden",
         }}
       >
         <OperatorSelect
@@ -103,7 +116,7 @@ interface SimplePropertyItemProps {
           handlePropOperatorChange={handlePropOperatorChange}
         />
 
-        {!isNoCompareOperator && property?.checked && (
+        {!isNoCompareOperator && (
           <TextFieldValue1
             property={property}
             bufferKey={bufferKey}
@@ -114,7 +127,7 @@ interface SimplePropertyItemProps {
           />
         )}
 
-        {property.operators[0] === "between" && (
+        {(property.operators[0] === "between" || isStateOperator) && (
           <TextFieldValue2
             property={property}
             bufferKey={bufferKey}

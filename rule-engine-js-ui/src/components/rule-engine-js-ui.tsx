@@ -108,11 +108,13 @@ export default function RuleEngineJSUI({
    * @param {RuleExpression} rule - The rule that must be saved
    * @param {Operator} operator - The top operator of the rule (and, or, not)
    * @param {number} schemaId - The id of the schema that was used to build the rule
+   * @param {object} firstEval - An object that can be used for the first evaluation of a stateful rule
    */
   const prepareSaveRule = (
     rule: RuleExpression,
     operator: Operator,
     schemaId: number,
+    firstEval: object,
   ) => {
     if (isSaveRule) {
       //this will open the dialog that provides inputs for name and description
@@ -123,6 +125,7 @@ export default function RuleEngineJSUI({
         schemaId,
         operator,
         rule,
+        firstEval,
       });
     } else {
       //here the rule is saved without name and description
@@ -133,6 +136,7 @@ export default function RuleEngineJSUI({
         schemaId: ruleToSave!.schemaId,
         operator: ruleToSave!.operator,
         rule: ruleToSave!.rule,
+        firstEval: ruleToSave!.firstEval,
       };
       handleSaveRule(archivedRule);
     }
@@ -165,6 +169,7 @@ export default function RuleEngineJSUI({
       schemaId: ruleToSave!.schemaId,
       operator: ruleToSave!.operator,
       rule: ruleToSave!.rule,
+      firstEval: ruleToSave!.firstEval,
     };
     handleSaveRule(archivedRule);
     handleClose();

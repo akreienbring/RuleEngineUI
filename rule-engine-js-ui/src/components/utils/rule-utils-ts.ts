@@ -4,9 +4,48 @@
   https://github.com/crafts69guy/rule-engine-js/issues/4
   https://gist.github.com/hyusetiawan/0f79794086cb12baf101323e3b44ca8d
 */
-import { createUUID, deepCopy } from "@src/components/utils/general";
+import { createUUID } from "@src/components/utils/general";
 import { evaluateRule } from "./rule-utils-js";
 import { RuleExpression, EvaluationResult } from "rule-engine-js";
+import { getStateOperators } from "./operator-utils";
+
+const stateOperators: Operator[] = getStateOperators();
+
+/**
+ * Uses a recursion to check if the rule has operators that require the stateful rule engine
+ * @param {object[]} operators - The list of operators of the rule with subrules
+ * @returns {boolean} true if the rule has at least state operator, false otherwise
+ */
+export function hasStateOperator(operators: object[]): boolean {
+  let result = false;
+  const ruleOperators: { operator: Operator; value: RuleExpression[] }[] = [];
+
+  operators.forEach((operator) => {
+    Object.entries(operator).forEach(([operatorName, value]) => {
+      if (
+        operatorName === "and" ||
+        operatorName === "or" ||
+        operatorName === "not"
+      ) {
+        //value is an array with all the (sub) operators of the rule
+        ruleOperators.push({ operator: operatorName, value });
+      } else {
+        //operator !== and, or, not. Push to result
+        if (stateOperators.includes(operatorName as Operator)) {
+          result = true;
+        }
+      }
+    });
+  });
+
+  ruleOperators.forEach((ruleOperator) => {
+    const subOperators = ruleOperator.value;
+    //and start the recursion
+    result = hasStateOperator(subOperators as object[]);
+  });
+
+  return result;
+}
 
 /**
  * Uses a recursion to transform the rule-engine.js presentation of a rule to the internal format by inserting subrules
@@ -187,19 +226,25 @@ export const transformRule = (
 };
 
 /**
- * Transforms the internal representation (with subrules) of a rule to the format that is testable by the ruleEngine
- * and evaluates it.
+ * Validates a rule. Before the rule is validated, it is transformed to the format that is compliant with rule-engine-js
+ * @async
  * @param {Operator} operator - the operator of the rule (and, or, not).
  * @param {object} obj - The object to test the rule on
  * @param {RuleExpression} rule - The rule (contains subrule objects)
- * @returns {EvaluationResult} The result of the test performed by the ruleEngine
+ * @returns {Promise<EvaluationResult>} The result of the test performed by the ruleEngine
  */
-export const validateRule = (
+export const validateRule = async (
   operator: Operator,
   obj: object,
   rule: RuleExpression,
-): EvaluationResult => {
+): Promise<EvaluationResult> => {
   const transformedRule = transformRule(operator, rule);
-  const testResult = evaluateRule(obj, transformedRule);
-  return testResult;
+
+  return evaluateRule(
+    obj,
+    transformedRule,
+    hasStateOperator(rule[operator] as object[]),
+  ).then((testResult) => {
+    return testResult;
+  });
 };

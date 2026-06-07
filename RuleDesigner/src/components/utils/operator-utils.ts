@@ -77,7 +77,7 @@ export const getOperators = (
       operators = generalOP;
   }
 
-  if (isEnum) {
+  if (propertyType !== "string" || (isEnum && propertyType === "string")) {
     operators = operators.concat(enumOP);
   }
   return operators;
@@ -98,18 +98,18 @@ export const getNoCompareOperators = (): Operator[] => {
     "isTrue",
     "isFalse",
     "changed",
-    "increased", //number only
-    "decreased", //number only
+    "increased",
+    "decreased",
   ];
 };
 
 /**
- * CURRENTLY NOT USED
  * Return a list of state operators.
  * State operators are operators that compare the current value of a property to its previous value and check if it was changed for specific test data.
  * changed, decreased, increased are noCompareOpeators.
  * changedBy allows for a free input of a comparison value (numeric only) while
- * changedFrom, changedTo are operators that require comparison with (ideally) only possibe (given) values. (Does property selection make sense?)
+ * changedFrom, changedTo are operators that require comparison with (ideally) only possibe (given) values (ONLY IF THE PROPERTY IS OF TYPE STRING).
+ * (property selection doesn'tmake sense)
  * For example, for a property "status" with the following JSON schema:
  * {
  *   "type": "string",
@@ -118,7 +118,7 @@ export const getNoCompareOperators = (): Operator[] => {
  * where enum restricts the allowed values.
  * The value is compared to the previous value of the property for the given test data.
  * see: https://github.com/crafts69guy/rule-engine-js/blob/production/docs/essentials/stateful-engine.mdx
- * @returns {Operator[]}
+ * @returns {Operator[]} A list of operators that only make sense when the stateful rule engine is used for evaluation of a rule.
  */
 export const getStateOperators = (): Operator[] => {
   return [
@@ -126,8 +126,8 @@ export const getStateOperators = (): Operator[] => {
     "increased", //number only
     "decreased", //number only
     "changed", //does this work for arrays?
-    "changedFrom", //enum only
-    "changedTo", //enum only
+    "changedFrom",
+    "changedTo",
   ];
 };
 

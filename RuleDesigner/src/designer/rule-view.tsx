@@ -1,11 +1,13 @@
 /*
   Author: André Kreienbring
-  see: https://stackoverflow.com/questions/38548039/can-you-store-javascript-in-a-db-and-then-execute-it-later-time
 */
 import { type JSX, useState } from "react";
-import type { ArchivedRule, Addon, InputSchema } from "rule-engine-js-ui";
-import { RuleEngineJSUI } from "rule-engine-js-ui";
-//import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
+import type {
+  ArchivedRule,
+  Addon,
+  InputSchema,
+} from "@src/components/types/public";
+import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 import {
   Card,
   Table,

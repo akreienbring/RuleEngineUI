@@ -3,80 +3,121 @@
   This is a custom hook that provides validation functions for form inputs.
   It can be used in any component that requires input validation.
 */
+import {
+  getNoCompareOperators,
+  getStateOperators,
+} from "@src/components/utils/operator-utils";
 
+type ValidationResult = {
+  errorMsg?: string;
+  newValue: string | number | boolean | number[] | string[];
+};
+
+/**
+ * Called when the final value must be an array (comma seperated values).
+ * If the value is valid it will be set on the property
+ * @param {Property} property - The property where the final value will be set
+ * @param {string} value - This value will be checked if it reqresents an array
+ */
+const checkArrayValue = (
+  property: Property,
+  valueToValidate: string,
+): ValidationResult => {
+  const result: ValidationResult = {
+    errorMsg: undefined,
+    newValue: valueToValidate,
+  };
+  result.newValue = valueToValidate.replace(", ", ",").trim();
+  const newValue = result.newValue.split(",");
+
+  if (
+    result.newValue.endsWith(",") ||
+    !Array.isArray(newValue) ||
+    newValue.length < 2
+  ) {
+    result.errorMsg = `Please enter comma seperated ${property.type === "number" ? "numbers" : "values"}`;
+  } else if (property.type === "number") {
+    //is valid but convert contained numbers as string to numbers
+    result.newValue = newValue.map((entry: any) => {
+      if (!isNaN(entry)) {
+        return Number(entry);
+      } else {
+        result.errorMsg = "Please enter comma seperated numbers";
+        return entry;
+      }
+    });
+  } else {
+    result.newValue = newValue;
+  }
+
+  return result;
+};
+
+/**
+ * A Ract-Hook that is used to validate properties.
+ */
 export const useValidation = () => {
   /**
    * Validates a property. Tries to correct values and sets error messages.
    * The given value is tested regarding the type of the property and the currently selected operator.
-   * Is called every time a property is updated. Sets the error message  on the property.
+   * Is called every time a property is updated. Sets (modified) value and the error message  on the property.
    * @param {Property} property - The property to validate
-   * @param {string} value - The value that was input for the value1 of the property
+   * @param {string} value - The value that was input as the value of the property
    */
-  const validateProperty = (property: Property, value: string) => {
-    delete property.value1Error;
-    delete property.value2Error;
+  const validateProperty = (
+    property: Property,
+    valueToValidate: string,
+  ): ValidationResult => {
     let isValueValid = true;
+    let result: ValidationResult = {
+      errorMsg: undefined,
+      newValue: valueToValidate,
+    };
 
     switch (property.type) {
       case "null":
-        property.value1 = value ? value : "";
+        result.newValue = valueToValidate ? valueToValidate : "";
         break;
       case "number":
         if (
           property.operators[0] === "in" ||
           property.operators[0] === "notIn"
         ) {
-          property.value1 = value.replace(", ", ",").trim();
-          const newValue = property.value1.split(",");
-          if (
-            property.value1.endsWith(",") ||
-            !Array.isArray(newValue) ||
-            newValue.length < 2
-          ) {
-            property.value1Error = "Please enter comma seperated values";
-          } else {
-            //is valid but convert contained numbers as string to numbers
-            property.value1 = newValue.map((entry: any) => {
-              if (!isNaN(Number(entry))) {
-                return Number(entry);
-              } else {
-                return entry;
-              }
-            });
+          if (!Array.isArray(valueToValidate)) {
+            result = checkArrayValue(property, valueToValidate.toString());
           }
         } else {
           isValueValid =
-            value === "-" || (value !== "" && !isNaN(Number(value)));
+            valueToValidate === "-" ||
+            (valueToValidate !== "" && !isNaN(Number(valueToValidate)));
           if (isValueValid) {
-            value === "-"
-              ? (property.value1 = value)
-              : (property.value1 = Number(value));
+            valueToValidate === "-"
+              ? (result.newValue = valueToValidate)
+              : (result.newValue = Number(valueToValidate));
           } else {
-            property.value1 = "";
-            property.value1Error = "Please enter a number";
+            result.newValue = "";
+            result.errorMsg = "Please enter a number";
           }
         }
         break;
       case "boolean":
-        property.value1 = value;
+        result.newValue = valueToValidate === "true";
         break;
       case "string":
         if (
           property.operators[0] === "in" ||
           property.operators[0] === "notIn"
         ) {
-          property.value1 = value.replace(", ", ",").trim();
-          const newValue = property.value1.split(",");
-          if (
-            property.value1.endsWith(",") ||
-            !Array.isArray(newValue) ||
-            newValue.length < 2
-          ) {
-            property.value1Error = "Please enter comma seperated values";
+          if (!Array.isArray(valueToValidate)) {
+            result = checkArrayValue(property, valueToValidate);
+          } else {
+            result.newValue = valueToValidate;
           }
         } else {
-          property.value1 =
-            value === null || typeof value === "undefined" ? "" : value;
+          result.newValue =
+            valueToValidate === null || typeof valueToValidate === "undefined"
+              ? ""
+              : valueToValidate;
         }
         break;
       case "array":
@@ -84,36 +125,23 @@ export const useValidation = () => {
         arrays can not be compared to anything.
         But this code is left here in case we want to allow comma seperated values as input for arrays in the future.
       */
-        if (typeof value !== "undefined") {
-          property.value1 = value.replace(", ", ",").trim();
-          const newValue = property.value1.split(",");
-          if (
-            property.value1.endsWith(",") ||
-            !Array.isArray(newValue) ||
-            newValue.length < 2
-          ) {
-            property.value1Error = "Please enter comma seperated values";
-            property.value1 = value;
+        if (typeof valueToValidate !== "undefined") {
+          if (!Array.isArray(valueToValidate)) {
+            result = checkArrayValue(property, valueToValidate);
           } else {
-            property.value1 = newValue;
+            result.newValue = valueToValidate;
           }
         } else {
-          property.value1Error = "Please enter comma seperated values";
-          property.value1 = value;
+          result.errorMsg = "Please enter comma seperated values";
+          result.newValue = valueToValidate;
         }
 
         break;
       default:
-        property.value1 = value;
+        result.newValue = valueToValidate;
     }
-    //check also value2 in case operator is 'between'
-    if (
-      typeof property.value2 !== "undefined" &&
-      property.operators[0] === "between" &&
-      (String(property.value2).trim() === "" || isNaN(Number(property.value2)))
-    ) {
-      property.value2Error = "Please enter a number";
-    }
+
+    return result;
   };
 
   /**
@@ -124,17 +152,37 @@ export const useValidation = () => {
   const validateProperties = (properties: PropertyBuffer): boolean => {
     let isValid = true;
     Object.values(properties).forEach((property) => {
-      if (property.checked) {
-        if (property.checked) {
-          validateProperty(property, property.value1);
+      const isStateOperator = getStateOperators().includes(
+        property.operators[0],
+      );
+      const isNoCompareOperator = getNoCompareOperators().includes(
+        property.operators[0],
+      );
 
-          if (
-            typeof property.value1Error !== "undefined" ||
-            (property.operators[0] === "between" &&
-              typeof property.value2Error !== "undefined")
-          )
-            isValid = false;
+      if (property.isChecked) {
+        delete property.value1Error;
+        delete property.value2Error;
+
+        if (!isNoCompareOperator) {
+          const result = validateProperty(property, property.value1.toString());
+          property.value1Error = result.errorMsg;
+          property.value1 = result.newValue;
         }
+
+        if (
+          (isStateOperator || property.operators[0] === "between") &&
+          typeof property.value2 !== "undefined"
+        ) {
+          const result = validateProperty(property, property.value2.toString());
+          property.value2Error = result.errorMsg;
+          property.value2 = result.newValue;
+        }
+
+        if (
+          typeof property.value1Error !== "undefined" ||
+          typeof property.value2Error !== "undefined"
+        )
+          isValid = false;
       }
     });
     return isValid;

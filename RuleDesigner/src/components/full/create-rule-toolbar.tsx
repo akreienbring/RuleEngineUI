@@ -7,7 +7,7 @@ import LoadRule from "@src/components/full/dialogs/load-rule";
 import SchemaSelect from "@src/components/general/schema-select";
 import LogicSelect from "@src/components/general/logic-select";
 import { restoreSubrules } from "@src/components/utils/rule-utils-ts";
-import type { ArchivedRule, InputSchema } from "rule-engine-js-ui";
+import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import { IconButton, Tooltip, Stack } from "@mui/material";
 import {
   UndoRounded,

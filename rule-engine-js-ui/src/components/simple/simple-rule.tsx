@@ -29,7 +29,10 @@ import SchemaSelect from "@src/components/general/schema-select";
 import LogicSelect from "@src/components/general/logic-select";
 import PropertyList from "@src/components/general/property-list";
 import SimpleRuleList from "./simple-rule-list";
-import { createProperties } from "@src/components/utils/property-utils";
+import {
+  createProperties,
+  createFirstEval,
+} from "@src/components/utils/property-utils";
 import { buildRule } from "@src/components/utils/rule-utils-js";
 import { restoreSubrules } from "@src/components/utils/rule-utils-ts";
 import { useValidation } from "@src/components/general/use-validation";
@@ -192,6 +195,9 @@ export default function SimpleRule({
    * The id is not yet existant and hence set to 0
    */
   const handleSave = () => {
+    //create the object for the first evaluation of a stateful rule
+    const firstEval = createFirstEval(properties);
+
     //no need to transform the rule. The simple interface does'nt create subrules
     const createdRule: ArchivedRule = {
       ruleid: 0,
@@ -200,7 +206,9 @@ export default function SimpleRule({
       schemaId: schemaId,
       operator: topOperator,
       rule: topRule,
+      firstEval,
     };
+
     handleSaveRule(createdRule);
     onClose();
   };
@@ -218,6 +226,7 @@ export default function SimpleRule({
       schemaId: schemaId,
       operator: topOperator,
       rule: topRule,
+      firstEval: {},
     };
     handleUpdateRule(archivedRule);
     onClose();
@@ -310,7 +319,7 @@ export default function SimpleRule({
     <Dialog
       open={isOpenRule}
       onClose={onClose}
-      maxWidth="md"
+      maxWidth="xl"
       disableRestoreFocus
     >
       <DialogTitle>

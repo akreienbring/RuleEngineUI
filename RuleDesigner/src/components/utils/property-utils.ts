@@ -1,15 +1,10 @@
 /*
   Author: André Kreienbring
 */
-import {
-  getNoCompareOperators,
-  getOperatorByType,
-} from "@src/components/utils/operator-utils";
+import { getOperatorByType } from "@src/components/utils/operator-utils";
 import { getValueByPath } from "@src/components/utils/rule-utils-js";
-import type {
-  ArchivedRule,
-  JSONSchema,
-} from "rule-engine-js-ui";
+import type { ArchivedRule, JSONSchema } from "@src/components/types/public";
+
 /**
  * JSONSchema property object can have 3 kinds of keys: const, enum, and type. If the type is not given,
  * it can be detected by the type of the value of const or the type of the first entry in enum.
@@ -66,6 +61,24 @@ const detectTypeValue = (
 };
 
 /**
+ * Stateful rules need an object for the first evaluation to detect changes.
+ * The initial values for this object are saved in the value2 of a property with a stateful operator.
+ * This function creates the object for the first evaluation of a stateful rule.
+ * @param {PropertyBuffer} properties - The properties created during rule creation.
+ * @returns {object} The object that can be used for the first evaluation of a stateful rule
+ */
+export const createFirstEval = (properties: PropertyBuffer): object => {
+  const firstEval: any = {};
+  Object.entries(properties).forEach(([key, property]) => {
+    if (property.operators[0] !== "between" && property.value2 !== "") {
+      firstEval[key] = property.value2;
+    }
+  });
+
+  return firstEval;
+};
+
+/**
  * Converts a JSON schema to a PropertyBuffer that will be used to create operators and inputs to create a rule
  * @param {JSONSchema} schema - The JSON schema to create the properties from
  * @param {object} [testObj] - If given, initial values for the inputs can be created from the object.
@@ -98,59 +111,52 @@ export const createProperties = (
         const bufferKey = path ? `${path}.${propName}` : propName;
 
         const propTypeValue = detectTypeValue(propInfo as JSONProperty);
-
         let value1 =
           typeof propTypeValue.propValue !== "undefined"
             ? propTypeValue.propValue
-            : undefined;
-        let value2: any;
-        let checked = false;
+            : "";
+        let value2 = "";
+        let isChecked = false;
         let operator = getOperatorByType(
           propTypeValue.propType,
           typeof propInfo.enum !== "undefined",
           [],
         );
+
         if (archivedRule !== null) {
           /*
-          If a rule was passed, check it for the used property name and value
-          This way the properties can be recreated from a given rule
-        */
+            If a rule was passed, check it for the used property name and value
+            This way the properties can be recreated from a given rule
+          */
           const operators = archivedRule.rule[
             archivedRule.operator
           ] as object[];
           operators.forEach((ruleOperator) => {
             Object.entries(ruleOperator).forEach(
               ([operatorName, comparison]) => {
-                if (comparison[0] === propName) {
-                  checked = true;
-                  const isNoCompareOperator = getNoCompareOperators().includes(
-                    operatorName as Operator,
-                  );
-                  if (isNoCompareOperator) {
-                    operator = getOperatorByType(
-                      propTypeValue.propType,
-                      typeof propInfo.enum !== "undefined",
-                      [],
-                    );
+                if (comparison[0] === bufferKey) {
+                  isChecked = true;
+                  operator = operatorName as Operator;
+                  if (operatorName === "between") {
+                    value1 = comparison[1][0];
+                    value2 = comparison[1][1];
+                    operator = "between";
                   } else {
-                    if (operatorName === "between") {
-                      value1 = comparison[1][0];
-                      value2 = comparison[1][1];
-                      operator = "between";
-                    } else {
-                      value1 = comparison[1];
-                      operator = getOperatorByType(
-                        propTypeValue.propType,
-                        typeof propInfo.enum !== "undefined",
-                        [],
-                        value1,
-                      );
-                    }
+                    value1 = comparison[1];
                   }
                 }
               },
             );
           });
+
+          /*
+            If the firstEval object has a key of propName, set it as value2
+          */
+          Object.entries(archivedRule.firstEval).forEach(
+            ([evalPropName, evalValue]) => {
+              if (evalPropName === propName) value2 = evalValue;
+            },
+          );
         } else if (testObj !== null) {
           /*
           If a test object was passed, check it for the used property name and value
@@ -158,7 +164,7 @@ export const createProperties = (
           const testValue1 = getValueByPath(testObj, bufferKey);
 
           if (typeof testValue1 !== "undefined") {
-            checked = true;
+            isChecked = true;
             value1 = testValue1;
             operator = getOperatorByType(
               propTypeValue.propType,
@@ -177,14 +183,15 @@ export const createProperties = (
           type: propTypeValue.propType,
           operators: [operator],
           origOperator: operator,
-          checked,
-          origChecked: checked,
+          isChecked,
+          origChecked: isChecked,
           level,
           /*
           If enum exists, add it to the property for later use in the operator select component.
           It can be used to restrict the possible values for the property and to display a select input instead of a text input for the value.
           */
           enum: propInfo.enum,
+          isConst: typeof propInfo.const !== "undefined",
         };
         properties[bufferKey] = property;
       } else {

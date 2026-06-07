@@ -27,6 +27,7 @@ export default function OperatorSelect({
   return (
     <TextField
       key={createUUID()}
+      disabled={property.isConst}
       size="small"
       variant="filled"
       select

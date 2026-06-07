@@ -3,7 +3,10 @@
 */
 
 import { useState, type JSX } from "react";
-import { getNoCompareOperators } from "@src/components/utils/operator-utils";
+import {
+  getNoCompareOperators,
+  getStateOperators,
+} from "@src/components/utils/operator-utils";
 import PropertyToolbar from "./property-toolbar";
 import OperatorSelect from "../general/operator-select";
 import TextFieldValue1 from "../general/textfield-value1";
@@ -75,12 +78,14 @@ export default function PropertyItem({
   //during the first render propery can be undefined!
   if (typeof property === "undefined") return null;
 
-  const indent = 3;
-  const itemMinWidth = 240;
-  const inputWidth = 400;
   const isNoCompareOperator = getNoCompareOperators().includes(
     property.operators[0],
   );
+  const isStateOperator = getStateOperators().includes(property.operators[0]);
+  const indent = 3;
+  const itemMinWidth = 240;
+  const inputWidth =
+    property.operators[0] === "between" || isStateOperator ? 350 / 2 : 350;
 
   /**
    * Create a list of properties that can be compared with other properties of the same object
@@ -134,14 +139,22 @@ export default function PropertyItem({
             key={`CB_${bufferKey}`}
             edge="start"
             checked={
-              typeof property.checked !== "undefined" ? property.checked : true
+              typeof property.isChecked !== "undefined"
+                ? property.isChecked
+                : true
             }
             disableRipple
           />
           <ListItemText
             key={`LIT_${bufferKey}`}
             primary={property.key}
-            secondary={property.type}
+            secondary={
+              typeof property.enum !== "undefined"
+                ? `${property.type} (enum)`
+                : property.isConst
+                  ? `${property.type} (const)`
+                  : `${property.type}`
+            }
             sx={{ minWidth: 100 }}
           />
         </ListItemButton>
@@ -160,7 +173,7 @@ export default function PropertyItem({
             justifyContent: "flex-start",
             mb: 1,
             mt: 1,
-            visibility: property.checked ? "visible" : "hidden",
+            visibility: property.isChecked ? "visible" : "hidden",
           }}
         >
           <OperatorSelect
@@ -169,7 +182,7 @@ export default function PropertyItem({
             handlePropOperatorChange={handlePropOperatorChange}
           />
 
-          {!isNoCompareOperator && property?.checked && (
+          {!isNoCompareOperator && (
             <TextFieldValue1
               property={property}
               bufferKey={bufferKey}
@@ -180,7 +193,7 @@ export default function PropertyItem({
             />
           )}
 
-          {property.operators[0] === "between" && (
+          {(property.operators[0] === "between" || isStateOperator) && (
             <TextFieldValue2
               property={property}
               bufferKey={bufferKey}
@@ -210,7 +223,7 @@ export default function PropertyItem({
             mr: 2,
             mb: 1,
             mt: 1,
-            visibility: property.checked ? "visible" : "hidden",
+            visibility: property.isChecked ? "visible" : "hidden",
           }}
         >
           {property.operators.map((operator, operatorIndex) => {

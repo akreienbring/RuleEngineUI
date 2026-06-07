@@ -40,18 +40,19 @@ declare global {
 
   type Property = {
     key: string;
-    value1: any;
-    origValue1: any;
-    value2?: number | string;
+    value1: string | number | boolean | number[] | string[];
+    origValue1: string | number | boolean | number[] | string[];
+    value2: string | number | boolean | number[] | string[];
     value1Error?: string;
     value2Error?: string;
     type: PropertyType;
     operators: Operator[];
     origOperator: Operator;
-    checked: boolean;
+    isChecked: boolean;
     origChecked: boolean;
     level: number;
     enum?: string[] | number[] | object[];
+    isConst: boolean;
   };
 
   type PropertyBuffer = {

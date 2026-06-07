@@ -15,10 +15,9 @@ import type {
   Addon,
   InputSchema,
   JSONSchema,
-} from "rule-engine-js-ui";
+} from "@src/components/types/public";
 import { createSchema } from "@omni-clm/genson-js";
-//import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
-import { RuleEngineJSUI } from "rule-engine-js-ui";
+import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 
 import RuleView from "@src/designer/rule-view";
 import Freddy from "@src/designer/freddy";
@@ -63,7 +62,7 @@ const NotifyStatus = {
 const dogSchema = {
   type: "object",
   properties: {
-    name: { type: "string" },
+    name: { const: "Freddy" },
     age: { type: "integer" },
     hobbies: { type: "array", items: { type: "string" } },
     dances: { enum: ["Salsa", "Kizomba", "Bachata"] },
@@ -255,7 +254,7 @@ export default function RuleDesigner(): JSX.Element {
       {currentTabIndex === 1 && (
         <RuleEngineJSUI
           schemas={schemas}
-          testObj={NotifyEvent}
+          testObj={sourceObj}
           maxLevel={3}
           isSaveRule={true}
           archivedRules={archivedRules}

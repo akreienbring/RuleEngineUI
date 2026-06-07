@@ -66,7 +66,8 @@ export default function PropertyToolbar({
               disabled={
                 isNoCompareOperator ||
                 property.type === "array" ||
-                typeof property.enum !== "undefined"
+                typeof property.enum !== "undefined" ||
+                property.isConst
               }
               onClick={() => handlePropertySelection(true)}
               sx={{ p: 0, m: 0, height: "fit-content" }}
@@ -96,8 +97,10 @@ export default function PropertyToolbar({
           <IconButton
             disabled={
               property.operators.length ===
-              getOperators(property.type, typeof property.enum !== "undefined")
-                .length
+                getOperators(
+                  property.type,
+                  typeof property.enum !== "undefined",
+                ).length || property.isConst
             }
             onClick={() => handleAddOperator(bufferKey)}
             sx={{ p: 0, m: 0, height: "fit-content" }}

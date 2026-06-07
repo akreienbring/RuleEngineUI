@@ -6,10 +6,11 @@
   Any help with this is apreciated!
 */
 
-import { createRuleEngine } from "rule-engine-js";
+import { createRuleEngine, StatefulRuleEngine } from "rule-engine-js";
 import { getNoCompareOperators } from "@src/components/utils/operator-utils";
 
 const ruleEngine = createRuleEngine();
+const statefulRuleEngine = new StatefulRuleEngine(ruleEngine);
 
 /**
  * Builds a NEW rule based on the (JSON schema) properties in the property buffer.
@@ -23,7 +24,7 @@ export const buildRule = (properties, operator) => {
   const newRule = { [operator]: [] };
 
   Object.entries(properties).forEach(([key, property]) => {
-    if (property.checked) {
+    if (property.isChecked) {
       property.operators.forEach((op) => {
         const isNoCompareOperator = getNoCompareOperators().includes(op);
 
@@ -75,13 +76,22 @@ export const buildRule = (properties, operator) => {
 /**
  * Test the rule against the given object.
  * TODO: achieve the same in Typescript
+ * @async
  * @param {object} obj - the object to test
  * @param {RuleExpression} rule - the rule used to evaluate the object
- * @returns {EvaluationResult} The result with information about the evaluation (e.g. success, error...)
+ * @param {boolean} isStatfulRule - If true the rule contains at least one stateful operator
+ * @returns {Promise<EvaluationResult>} The result with information about the evaluation (e.g. success, error...)
  */
-export const evaluateRule = (obj, rule) => {
-  const result = ruleEngine.evaluateExpr(rule, obj);
-  return result;
+export const evaluateRule = async (obj, rule, isStatfulRule) => {
+  if (isStatfulRule) {
+    return statefulRuleEngine.evaluate("topRule", rule, obj).then((result) => {
+      //console.log(`Stateful engine returned: ${JSON.stringify(result)}`);
+      return result;
+    });
+  } else {
+    const result = ruleEngine.evaluateExpr(rule, obj);
+    return Promise.resolve(result);
+  }
 };
 
 /**

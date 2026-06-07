@@ -40,6 +40,39 @@ export default function TextFieldValue2({
   inputWidth,
   handleValueChange,
 }: TextFieldValue2Props): JSX.Element {
+  /*
+    Determine if the textfield should be a select input and what the menu items should be. 
+    The value of the textfield is determined by the value1 of the property 
+  */
+  const menueItems: JSX.Element[] = [];
+  let selectValue: any = property.value2;
+
+  if (property.type === "boolean") {
+    menueItems.push(
+      <MenuItem key={`MI2_true_${bufferKey}`} value={true as any}>
+        true
+      </MenuItem>,
+    );
+    menueItems.push(
+      <MenuItem key={`MI2_false_${bufferKey}`} value={false as any}>
+        false
+      </MenuItem>,
+    );
+  } else if (isPropertySelect) {
+    /*
+      If the property references another property, the possible values are the keys of the properties in the buffer.
+      The value of the textfield is the key of the selected property
+    */
+    selectValue = propertyMenuItems[0];
+    menueItems.push(
+      ...propertyMenuItems.map((bufferKey, index) => (
+        <MenuItem key={`MI2_${index}_${bufferKey}`} value={bufferKey}>
+          {bufferKey}
+        </MenuItem>
+      )),
+    );
+  }
+
   return (
     <TextField
       key={`TF2_${bufferKey}`}
@@ -50,8 +83,8 @@ export default function TextFieldValue2({
       required
       size="small"
       variant="filled"
-      select={isPropertySelect}
-      value={property.value2}
+      select={menueItems.length > 0}
+      value={selectValue}
       name="value2"
       onChange={(event) =>
         handleValueChange(
@@ -68,14 +101,10 @@ export default function TextFieldValue2({
         },
       }}
       sx={{
-        width: inputWidth / 2 - 8,
+        width: inputWidth,
       }}
     >
-      {propertyMenuItems.map((bufferKey) => (
-        <MenuItem key={bufferKey} value={bufferKey}>
-          {bufferKey}
-        </MenuItem>
-      ))}
+      {menueItems.length > 0 ? menueItems : null}
     </TextField>
   );
 }

@@ -25,9 +25,10 @@ export const isOriginal = (property: Property): boolean => {
 
   if (property.type === "array") {
     if (Array.isArray(property.value1) && Array.isArray(property.origValue1)) {
+      const origValue1 = property.origValue1 as any[];
       return (
-        property.value1.length === property.origValue1.length &&
-        property.value1.every((v: any, i: any) => v === property.origValue1[i])
+        property.value1.length === origValue1.length &&
+        property.value1.every((v: any, i: number) => v === origValue1[i])
       );
     } else {
       return false;

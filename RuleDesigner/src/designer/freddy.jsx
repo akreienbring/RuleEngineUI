@@ -17,7 +17,6 @@ import ObjectList from "@src/components/full/object-list";
 import SimpleRuleList from "@src/components/simple/simple-rule-list";
 import { createRuleEngine, StatefulRuleEngine } from "rule-engine-js";
 import BorderBox from "@src/components/full/border-box";
-//import { BorderBox } from "rule-engine-js-ui";
 
 const baseEngine = createRuleEngine();
 const statefulEngine = new StatefulRuleEngine(baseEngine, {
@@ -77,6 +76,17 @@ export default function Freddy() {
     statefulEngine.evaluate("feed-freddy", isHungy, dog);
     statefulEngine.evaluate("play-freddy", isPlaying, dog);
   }, [dog]);
+
+  /*
+    By heaving two useEffects, we can ensure that the stateful engine is destroyed when the component is unmounted. 
+    Otherwise, we would have a memory leak, because the engine would still be running in the background and listening for changes on the dog object.
+  */
+  useEffect(() => {
+    return () => {
+      //console.log("destroying stateful engine");
+      statefulEngine.destroy();
+    };
+  }, []);
 
   /*
     Register an event handler. If one of the rules is triggered,
@@ -177,7 +187,7 @@ export default function Freddy() {
         <ObjectList obj={dog} />
       </BorderBox>
 
-      <BorderBox title="Rule" sx={{ minWidth: 345, pl: 3 }}>
+      <BorderBox title="Statful Rule" sx={{ minWidth: 345, pl: 3 }}>
         <SimpleRuleList topRule={combindedRules} topOperator="or" />
       </BorderBox>
     </Stack>

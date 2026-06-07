@@ -6,13 +6,12 @@
   Hence the initial rule, also created by this component, is valid, regarding the test object.
 */
 import { type JSX, useState } from "react";
-import { List } from "@mui/material";
+import { List, Stack } from "@mui/material";
 import ObjectItem from "../full/object-item";
 import PropertyItem from "../full/property-item";
 import SimplePropertyItem from "@src/components/simple/simple-property-item";
 import { getOperatorByType } from "@src/components/utils/operator-utils";
 import { useValidation } from "@src/components/general/use-validation";
-import { createUUID } from "../utils/general";
 
 interface PropertyListProps {
   isSimple: boolean;
@@ -101,16 +100,11 @@ export default function PropertyList({
       }
     } else {
       if (!isSecond) {
-        // TODO: Really validate already here or is updateProperties enough to validate the whole rule after every change?
+        // TODO is this necessary? Check early! This does also some preprocessing of the entered value
         //validateProperty(property, value);
         property.value1 = value;
       } else {
-        if (value !== "" && !isNaN(Number(value))) {
-          property.value2 = Number(value);
-        } else {
-          property.value2 = "";
-          property.value2Error = "Please enter a number";
-        }
+        property.value2 = value;
       }
     }
 
@@ -124,7 +118,7 @@ export default function PropertyList({
   const handlePropCheck = (bufferKey: string) => {
     const newProperties: PropertyBuffer = { ...properties };
     const property: Property = newProperties[bufferKey];
-    property.checked = !property.checked;
+    property.isChecked = !property.isChecked;
 
     updateProperties(newProperties);
   };
@@ -230,10 +224,9 @@ export default function PropertyList({
         );
       } else {
         elements.push(
-          <>
+          <Stack key={`ST_${bufferKey}`}>
             {isObject && (
               <ObjectItem
-                key={createUUID()}
                 level={property.level}
                 indent={indent}
                 path={property.level > 0 ? bufferKey : ""}
@@ -255,7 +248,7 @@ export default function PropertyList({
               handleResetProperty={handleResetProperty}
               handleSelectOperator={handleSelectOperator}
             />
-          </>,
+          </Stack>,
         );
       }
     });
