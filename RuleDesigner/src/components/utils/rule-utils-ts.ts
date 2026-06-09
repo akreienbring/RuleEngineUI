@@ -231,12 +231,14 @@ export const transformRule = (
  * @param {Operator} operator - the operator of the rule (and, or, not).
  * @param {object} obj - The object to test the rule on
  * @param {RuleExpression} rule - The rule (contains subrule objects)
+ * @param {boolean} [isFirstEval] - If given and true the state of a stateful rule will be reset before evaluation.
  * @returns {Promise<EvaluationResult>} The result of the test performed by the ruleEngine
  */
 export const validateRule = async (
   operator: Operator,
   obj: object,
   rule: RuleExpression,
+  isFirstEval = false,
 ): Promise<EvaluationResult> => {
   const transformedRule = transformRule(operator, rule);
 
@@ -244,6 +246,7 @@ export const validateRule = async (
     obj,
     transformedRule,
     hasStateOperator(rule[operator] as object[]),
+    isFirstEval,
   ).then((testResult) => {
     return testResult;
   });

@@ -8,10 +8,8 @@
 import { type JSX, useState } from "react";
 import { List, Stack } from "@mui/material";
 import ObjectItem from "../full/object-item";
-import PropertyItem from "../full/property-item";
-import SimplePropertyItem from "@src/components/simple/simple-property-item";
+import PropertyItem from "./property-item";
 import { getOperatorByType } from "@src/components/utils/operator-utils";
-import { useValidation } from "@src/components/general/use-validation";
 
 interface PropertyListProps {
   isSimple: boolean;
@@ -36,7 +34,6 @@ export default function PropertyList({
   properties,
   updateProperties,
 }: PropertyListProps): JSX.Element {
-  const { validateProperty } = useValidation();
   const [expandedObjects, setExpandedObjects] = useState<boolean[]>([]);
 
   const elements: JSX.Element[] = [];
@@ -208,18 +205,26 @@ export default function PropertyList({
       const indent = 3;
 
       let isObject = false;
-      if (property.level === lastLevel + 1) {
+      if (property.level > lastLevel) {
         isObject = true;
         lastLevel++;
       }
       if (isSimple) {
         elements.push(
-          <SimplePropertyItem
-            property={property}
+          <PropertyItem
+            isExpanded={true}
+            isSimple={isSimple}
+            level={property.level}
+            propName={property.key}
+            properties={properties}
             bufferKey={bufferKey}
             handlePropCheck={handlePropCheck}
             handlePropOperatorChange={handlePropOperatorChange}
             handleValueChange={handleValueChange}
+            handleDeleteOperator={handleDeleteOperator}
+            handleAddOperator={handleAddOperator}
+            handleResetProperty={handleResetProperty}
+            handleSelectOperator={handleSelectOperator}
           />,
         );
       } else {
@@ -236,6 +241,7 @@ export default function PropertyList({
             )}
             <PropertyItem
               isExpanded={isExpanded}
+              isSimple={isSimple}
               level={property.level}
               propName={property.key}
               properties={properties}

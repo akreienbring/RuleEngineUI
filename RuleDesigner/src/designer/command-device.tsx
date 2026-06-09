@@ -5,11 +5,6 @@ import { type JSX } from "react";
 import { TextField, MenuItem, Stack, IconButton, Tooltip } from "@mui/material";
 import { AddRounded, ClearRounded } from "@mui/icons-material";
 
-type CommandDevice = {
-  command: string;
-  device: { cname: string; id: string };
-};
-
 interface CommandDeviceProps {
   commands: string[];
   devices: any[];
@@ -48,7 +43,7 @@ export default function CommandDevice({
    */
   const isSelected = (id: string): boolean => {
     const index = commandsDevices.findIndex(
-      (commandDevice) => commandDevice.device.id === id,
+      (commandDevice) => commandDevice.device.value === id,
     );
     return index !== -1;
   };
@@ -82,7 +77,7 @@ export default function CommandDevice({
             size="small"
             variant="filled"
             select
-            value={entry.device.id}
+            value={entry.device.value}
             name="device"
             onChange={(event) =>
               handleDeviceChange(event.target.value, cdIndex)
@@ -93,11 +88,13 @@ export default function CommandDevice({
               <MenuItem
                 disabled={isSelected(device.id)}
                 value={
-                  entry.device.id === device.id ? entry.device.id : device.id
+                  entry.device.value === device.value
+                    ? entry.device.value
+                    : device.value
                 }
               >
-                {entry.device.id === device.id
-                  ? entry.device.cname
+                {entry.device.value === device.id
+                  ? entry.device.name
                   : device.cname}
               </MenuItem>
             ))}

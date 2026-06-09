@@ -12,4 +12,5 @@ export type {
   Addon,
   InputSchema,
   JSONSchema,
+  TestObject,
 } from "./components/types/public";

@@ -4,7 +4,7 @@
 
 import { type JSX, useState } from "react";
 import { RuleExpression } from "rule-engine-js";
-import type { ArchivedRule } from "@src/components/types/public";
+import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import {
   Tooltip,
   ListItemText,
@@ -29,6 +29,7 @@ interface RuleListToolbarProps {
   isExpanded: boolean;
   operatorName: Operator;
   archivedRules: ArchivedRule[];
+  schemas: InputSchema[];
   schemaId: number;
   schemaName: string;
   handleSelectedRuleChange: (selectedRule: RuleIndex) => void;
@@ -49,6 +50,7 @@ interface RuleListToolbarProps {
  * @param {boolean} props.isExpanded - indicates if a rule is currently expanded or collapsed
  * @param {Operator} props.operatorName - (and, or, not) The operator of the rule
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
+ * @param {InputSchema[]} props.schemas - A list of schemas.
  * @param {number} props.schemaId - The id of the currently selected schema
  * @param {string} props.schemaName - The name of the schema of the rule
  * @param {Function} props.handleSelectedRuleChange - Called when the user selects a rule of the list
@@ -63,6 +65,7 @@ export default function RuleListToolbar({
   isExpanded,
   operatorName,
   archivedRules,
+  schemas,
   schemaId,
   schemaName,
   handleSelectedRuleChange,
@@ -161,6 +164,7 @@ export default function RuleListToolbar({
         isOpen={isOpen}
         onClose={onClose}
         archivedRules={archivedRules}
+        schemas={schemas}
         schemaId={schemaId}
         schemaName={schemaName}
         handleAddEmptyRule={handleAddEmptyRule}

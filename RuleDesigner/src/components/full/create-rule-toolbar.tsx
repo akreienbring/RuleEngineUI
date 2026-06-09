@@ -7,8 +7,12 @@ import LoadRule from "@src/components/full/dialogs/load-rule";
 import SchemaSelect from "@src/components/general/schema-select";
 import LogicSelect from "@src/components/general/logic-select";
 import { restoreSubrules } from "@src/components/utils/rule-utils-ts";
-import type { ArchivedRule, InputSchema } from "@src/components/types/public";
-import { IconButton, Tooltip, Stack } from "@mui/material";
+import type {
+  ArchivedRule,
+  InputSchema,
+  TestObject,
+} from "@src/components/types/public";
+import { IconButton, Tooltip, Stack, TextField, MenuItem } from "@mui/material";
 import {
   UndoRounded,
   AccountTreeRounded,
@@ -17,13 +21,36 @@ import {
   RuleFolderRounded,
 } from "@mui/icons-material";
 
+const currencies = [
+  {
+    value: "USD",
+    label: "$",
+  },
+  {
+    value: "EUR",
+    label: "€",
+  },
+  {
+    value: "BTC",
+    label: "฿",
+  },
+  {
+    value: "JPY",
+    label: "¥",
+  },
+];
+
 interface CreateRuleToolbarProps {
   schemas: InputSchema[];
   schemaId: number;
+  testObjects: TestObject[];
+  testObjectId: number;
   operator: Operator;
   isShowRuleText: boolean;
   archivedRules: ArchivedRule[];
   handleSchemaSelect: (schemaId: number) => void;
+  handleTestObjectSelect: (testObjectId: number) => void;
+
   handleResetAll: () => void;
   handleRuleOperatorChange: (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -38,9 +65,12 @@ interface CreateRuleToolbarProps {
  * @param {CreateRuleToolbarProps} props
  * @param {InputSchema[]} props.schemas - A list of JSON schemas used to build a list of properties for a rule
  * @param {number} props.schemaId - The id of the currently selected JSON schema
+ * @param {InputSchema[]} props.testObjects - A list of Test Objects
+ * @param {number} props.testObjectId - The id of the currently selected Test Object
  * @param {Operator} props.operator - The operator (and, or, not) of the selected rule
  * @param {boelean} props.isShowRuleText - Indicates if the list of rules is presented as JSON or as object
  * @param {Function} props.handleSchemaSelect - Called when a different schema must be used
+ * @param {Function} props.handleTestObjectSelect - Called when the selected Test Object must be changed
  * @param {Function} props.handleResetAll - Called when all properties of a rule must be reset to there original values
  * @param {Function} props.handleRuleOperatorChange - Called when the operator (and, or, not) of a rule must be changed
  * @param {Function} props.toggleShowRuleText - Used to toggle the presentation of the rule. (JSON or object)
@@ -51,10 +81,13 @@ interface CreateRuleToolbarProps {
 export default function CreateRuleToolbar({
   schemas,
   schemaId,
+  testObjects,
+  testObjectId,
   operator,
   isShowRuleText,
   archivedRules,
   handleSchemaSelect,
+  handleTestObjectSelect,
   handleResetAll,
   handleRuleOperatorChange,
   toggleShowRuleText,
@@ -98,7 +131,6 @@ export default function CreateRuleToolbar({
   return (
     <Stack
       direction="row"
-      spacing={2}
       sx={{
         alignItems: "center",
         border: "1px solid grey",
@@ -108,61 +140,82 @@ export default function CreateRuleToolbar({
         p: 2,
       }}
     >
-      <Tooltip title={`Save Rule`}>
-        <IconButton
-          onClick={handleSaveToprule}
-          sx={{ p: 0, m: 0, height: "fit-content" }}
-        >
-          <SaveRounded fontSize="large" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip title="Load Rule">
-        <span>
+      <Stack direction="row" spacing={2} sx={{ width: 1 }}>
+        <Tooltip title={`Save Rule`}>
           <IconButton
-            onClick={handleOpen}
-            disabled={archivedRules.length === 0}
+            onClick={handleSaveToprule}
             sx={{ p: 0, m: 0, height: "fit-content" }}
           >
-            <RuleFolderRounded fontSize="large" />
+            <SaveRounded fontSize="large" />
           </IconButton>
-        </span>
-      </Tooltip>
+        </Tooltip>
+        <Tooltip title="Load Rule">
+          <span>
+            <IconButton
+              onClick={handleOpen}
+              disabled={archivedRules.length === 0}
+              sx={{ p: 0, m: 0, height: "fit-content" }}
+            >
+              <RuleFolderRounded fontSize="large" />
+            </IconButton>
+          </span>
+        </Tooltip>
 
-      <SchemaSelect
-        schemas={schemas}
-        schemaId={schemaId}
-        handleSchemaSelect={handleSchemaSelect}
-      />
-      <LogicSelect
-        operator={operator}
-        handleRuleOperatorChange={handleRuleOperatorChange}
-      />
-      <Tooltip title={`Reset ${schemas[schemaId].name}`}>
-        <IconButton
-          onClick={handleResetAll}
-          sx={{ p: 0, m: 0, height: "fit-content" }}
+        <SchemaSelect
+          schemas={schemas}
+          schemaId={schemaId}
+          handleSchemaSelect={handleSchemaSelect}
+        />
+        <LogicSelect
+          operator={operator}
+          handleRuleOperatorChange={handleRuleOperatorChange}
+        />
+        <Tooltip title={`Reset ${schemas[schemaId].name}`}>
+          <IconButton
+            onClick={handleResetAll}
+            sx={{ p: 0, m: 0, height: "fit-content" }}
+          >
+            <UndoRounded fontSize="large" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip
+          title={isShowRuleText ? "Show Rule as object" : "Show Rule as text"}
         >
-          <UndoRounded fontSize="large" />
-        </IconButton>
-      </Tooltip>
-      <Tooltip
-        title={isShowRuleText ? "Show Rule as object" : "Show Rule as text"}
-      >
-        <IconButton
-          onClick={toggleShowRuleText}
-          sx={{ p: 0, m: 0, height: "fit-content" }}
+          <IconButton
+            onClick={toggleShowRuleText}
+            sx={{ p: 0, m: 0, height: "fit-content" }}
+          >
+            {isShowRuleText ? (
+              <AccountTreeRounded fontSize="large" />
+            ) : (
+              <RttRounded fontSize="large" />
+            )}
+          </IconButton>
+        </Tooltip>
+      </Stack>
+      <Stack sx={{ alignItems: "end" }}>
+        <TextField
+          size="small"
+          select
+          label="Select a Test Object"
+          value={testObjectId}
+          onChange={(event) =>
+            handleTestObjectSelect(Number(event.target.value))
+          }
+          sx={{ width: 180 }}
         >
-          {isShowRuleText ? (
-            <AccountTreeRounded fontSize="large" />
-          ) : (
-            <RttRounded fontSize="large" />
-          )}
-        </IconButton>
-      </Tooltip>
+          {testObjects.map((testObject, index) => (
+            <MenuItem key={`TO_${index}`} value={index}>
+              {testObject.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Stack>
       <LoadRule
         isOpen={isOpen}
         onClose={onClose}
         archivedRules={archivedRules}
+        schemas={schemas}
         handleLoadArchiveRule={handleLoadArchiveRule}
       />
     </Stack>

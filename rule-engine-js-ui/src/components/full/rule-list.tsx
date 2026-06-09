@@ -5,7 +5,7 @@
 
 */
 import { type JSX, useState } from "react";
-import type { ArchivedRule } from "@src/components/types/public";
+import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import { RuleExpression } from "rule-engine-js";
 import { List, ListItem, ListItemText } from "@mui/material";
 import RuleListToolbar from "./rule-list-toolbar";
@@ -18,6 +18,7 @@ interface RuleListProps {
   isTestValid: boolean;
   uuid: string;
   archivedRules: ArchivedRule[];
+  schemas: InputSchema[];
   schemaId: number;
   schemaName: string;
   handleSelectedRuleChange: (selectedRule: RuleIndex) => void;
@@ -38,6 +39,7 @@ interface RuleListProps {
  * @param {boolean} props.isTestValid - Indicates if the given test object, tested againgst the top rule, is valid
  * @param {string} props.uuid - Used to identify a rule (and, or, not) in the list
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
+ * @param {InputSchema[]} props.schemas - A list of schemas.
  * @param {number} props.schemaId - The id of the currently selected schema
  * @param {string} [props.schemaName] - If given, the name of the schema of the rule
  * @param {Function} props.handleSelectedRuleChange - Called when the user clicks on a rule in the list to make it the currently selected rule
@@ -52,6 +54,7 @@ export default function RuleList({
   isTestValid,
   uuid,
   archivedRules,
+  schemas,
   schemaId,
   schemaName,
   handleSelectedRuleChange,
@@ -135,6 +138,7 @@ export default function RuleList({
           isExpanded={isExpanded}
           operatorName={operatorName}
           archivedRules={archivedRules}
+          schemas={schemas}
           schemaId={schemaId}
           schemaName={schemaName}
           handleSelectedRuleChange={handleSelectedRuleChange}

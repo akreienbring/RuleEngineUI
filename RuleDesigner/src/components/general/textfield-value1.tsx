@@ -3,8 +3,8 @@
   The Textfield that is uses to enter the value1 of a property.
 */
 import { type JSX } from "react";
-import { MenuItem, TextField } from "@mui/material";
-import { createUUID } from "../utils/general";
+import { TextField } from "@mui/material";
+import { useMenuItems } from "./use-menuitems";
 
 interface TextFieldValue1Props {
   property: Property;
@@ -40,67 +40,15 @@ export default function TextFieldValue1({
   inputWidth,
   handleValueChange,
 }: TextFieldValue1Props): JSX.Element {
-  /*
-    Determine if the textfield should be a select input and what the menu items should be. 
-    The value of the textfield is determined by the value1 of the property 
-  */
-  const menueItems: JSX.Element[] = [];
-  let selectValue: any = property.value1;
+  const { createMenuItems } = useMenuItems();
 
-  if (property.type === "boolean") {
-    menueItems.push(
-      <MenuItem key={`MI1_true_${bufferKey}`} value={true as any}>
-        true
-      </MenuItem>,
-    );
-    menueItems.push(
-      <MenuItem key={`MI1_false_${bufferKey}`} value={false as any}>
-        false
-      </MenuItem>,
-    );
-  } else if (isPropertySelect) {
-    /*
-      If the property references another property, the possible values are the keys of the properties in the buffer.
-      The value of the textfield is the key of the selected property
-    */
-    selectValue = propertyMenuItems[0];
-    menueItems.push(
-      ...propertyMenuItems.map((bufferKey, index) => (
-        <MenuItem key={`MI1_${index}_${bufferKey}`} value={bufferKey}>
-          {bufferKey}
-        </MenuItem>
-      )),
-    );
-  } else if (property.enum && typeof property.enum[0] === "object") {
-    // If the enum is an array of objects with name and value, use the name as label and the value as value for the menu item
-    const enumItems = property.enum as Array<{
-      name: string;
-      value: string | number;
-    }>;
-    menueItems.push(
-      ...enumItems.map((item, index) => (
-        <MenuItem key={`MI1_${index}_${bufferKey}`} value={item.value}>
-          {item.name}
-        </MenuItem>
-      )),
-    );
-  } else if (
-    property.enum &&
-    typeof property.enum[0] !== "object" &&
-    typeof property.enum[0] !== "undefined"
-  ) {
-    /*  If the enum is an array of primitive values, use the value as label and value for the menu item
-        The value of the textfield is the first entry in the enum array
-    */
-    const enumValues = property.enum as Array<string | number>;
-    menueItems.push(
-      ...enumValues.map((value, index) => (
-        <MenuItem key={`MI1_${index}_${bufferKey}`} value={value}>
-          {value}
-        </MenuItem>
-      )),
-    );
-  }
+  const { menuItems, selectValue } = createMenuItems(
+    property,
+    bufferKey,
+    propertyMenuItems,
+    isPropertySelect,
+    false,
+  );
 
   return (
     <TextField
@@ -113,7 +61,7 @@ export default function TextFieldValue1({
       required={property.type === "number"}
       size="small"
       variant="filled"
-      select={menueItems.length > 0}
+      select={menuItems.length > 0}
       value={selectValue}
       name="value1"
       onChange={(event) =>
@@ -129,7 +77,7 @@ export default function TextFieldValue1({
         width: inputWidth,
       }}
     >
-      {menueItems.length > 0 ? menueItems : null}
+      {menuItems.length > 0 ? menuItems : null}
     </TextField>
   );
 }

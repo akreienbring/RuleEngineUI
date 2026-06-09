@@ -11,6 +11,7 @@ import type {
   ArchivedRule,
   Addon,
   InputSchema,
+  TestObject,
 } from "@src/components/types/public";
 import CreateRule from "./full/create-rule";
 import SimpleRule from "./simple/simple-rule";
@@ -39,7 +40,7 @@ interface RuleEngingJSUIProps {
   isOpenCreateRule?: boolean;
   onCloseCreateRule?: () => void;
   maxLevel?: number;
-  testObj?: object;
+  testObjects?: TestObject[];
   archivedRules?: ArchivedRule[];
   archivedRule?: ArchivedRule;
   addons?: Addon[];
@@ -57,7 +58,7 @@ interface RuleEngingJSUIProps {
  * @param {boolean} props.isSaveRule - If true, the final rule can be saved with name and descriptiion
  * @param {Function} props.handleSaveRule - Hand over the created rule to the application that is using this component
  * @param {number} [props.maxLevel] - If provided, the JSON schema is only analized up to the given depht
- * @param {object} [props.testObj] - A created rule will be tested against this object
+ * @param {object} props.testObjects - A created rule will be tested against one of these objects
  * @param {ArchiveRule[]} [props.archivedRules] - A list of already exiting rules to select from when adding a new rule
  * @param {Function} props.handleUpdateRule - Calls the function to update the rule in the list of "archived" rules
  * @param {ArchivedRule} [props.archivedRule] - If given, the user wants to edit an existing rule
@@ -73,7 +74,7 @@ export default function RuleEngineJSUI({
   isOpenCreateRule,
   onCloseCreateRule,
   maxLevel,
-  testObj,
+  testObjects,
   archivedRules,
   archivedRule,
   addons,
@@ -177,12 +178,11 @@ export default function RuleEngineJSUI({
 
   return (
     <Box sx={{ m: 2 }}>
-      {typeof testObj !== "undefined" &&
-      typeof archivedRules !== "undefined" ? (
+      {typeof archivedRules !== "undefined" ? (
         <ErrorBoundary FallbackComponent={CreateRuleErrorFallback}>
           <CreateRule
             schemas={schemas}
-            testObj={testObj}
+            testObjects={testObjects || []}
             maxLevel={maxLevel}
             archivedRules={archivedRules}
             prepareSaveRule={prepareSaveRule}

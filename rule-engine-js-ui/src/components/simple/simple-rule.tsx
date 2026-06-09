@@ -72,7 +72,7 @@ export default function SimpleRule({
   archivedRule,
 }: SimpleRuleProps): JSX.Element {
   const { validateProperties } = useValidation();
-  const [schemaId, setSchemaIndex] = useState(
+  const [schemaId, setSchemaId] = useState(
     typeof archivedRule !== "undefined" ? archivedRule.schemaId : 0,
   );
   const [properties, setProperties] = useState<PropertyBuffer>(
@@ -115,7 +115,7 @@ export default function SimpleRule({
   const onOpen = () => {
     if (isOpenRule) {
       if (typeof archivedRule === "undefined") {
-        setSchemaIndex(0);
+        setSchemaId(0);
         setProperties(createProperties(schemas[schemaId].schema, null, null));
         setRuleName("");
         setRuleDescription("");
@@ -126,7 +126,7 @@ export default function SimpleRule({
           and: [],
         });
       } else {
-        setSchemaIndex(archivedRule.schemaId);
+        setSchemaId(archivedRule.schemaId);
         setProperties(
           createProperties(
             schemas[archivedRule.schemaId].schema,
@@ -156,7 +156,7 @@ export default function SimpleRule({
    * and closes the dialog.
    */
   const onClose = () => {
-    setSchemaIndex(0);
+    setSchemaId(0);
     setProperties(createProperties(schemas[schemaId].schema, null, null));
     setRuleName("");
     setRuleDescription("");
@@ -219,25 +219,27 @@ export default function SimpleRule({
    * @param {number} ruleid - The id of the rule to update
    */
   const handleUpdate = (ruleid: number) => {
-    const archivedRule: ArchivedRule = {
+    const firstEval = createFirstEval(properties);
+
+    const updatedRule: ArchivedRule = {
       ruleid,
       name: ruleName,
       description: ruleDescription,
       schemaId: schemaId,
       operator: topOperator,
       rule: topRule,
-      firstEval: {},
+      firstEval,
     };
-    handleUpdateRule(archivedRule);
+    handleUpdateRule(updatedRule);
     onClose();
   };
 
   /**
-   * When the schema is changed, then the property buffer must be rebuild
+   * When the schema is changed, the property buffer must be rebuild
    * @param {number} schemaId - The new schema index.
    */
   const handleSchemaSelect = (schemaId: number) => {
-    setSchemaIndex(schemaId);
+    setSchemaId(schemaId);
     setProperties(createProperties(schemas[schemaId].schema, null, null));
     setTopRule({
       and: [],

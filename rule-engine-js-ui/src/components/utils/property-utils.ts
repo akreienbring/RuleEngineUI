@@ -1,9 +1,13 @@
 /*
   Author: André Kreienbring
 */
-import { getOperatorByType } from "@src/components/utils/operator-utils";
+import {
+  getOperatorByType,
+  getStateOperators,
+} from "@src/components/utils/operator-utils";
 import { getValueByPath } from "@src/components/utils/rule-utils-js";
 import type { ArchivedRule, JSONSchema } from "@src/components/types/public";
+import { IosShareTwoTone } from "@mui/icons-material";
 
 /**
  * JSONSchema property object can have 3 kinds of keys: const, enum, and type. If the type is not given,
@@ -69,9 +73,15 @@ const detectTypeValue = (
  */
 export const createFirstEval = (properties: PropertyBuffer): object => {
   const firstEval: any = {};
-  Object.values(properties).forEach((property) => {
-    if (property.operators[0] !== "between" && property.value2 !== "") {
-      firstEval[property.key] = property.value2;
+  Object.entries(properties).forEach(([key, property]) => {
+    const isStateOperator = getStateOperators().includes(property.operators[0]);
+    if (
+      property.operators[0] !== "between" &&
+      property.value2 !== "" &&
+      property.isChecked &&
+      isStateOperator
+    ) {
+      firstEval[key] = property.value2;
     }
   });
 
@@ -107,7 +117,7 @@ export const createProperties = (
     const subObjects: { path: string; propName: string; obj: object }[] = [];
 
     Object.entries(obj).forEach(([propName, propInfo]) => {
-      if (!propInfo.type || propInfo.type !== "object") {
+      if (propInfo.type !== "object") {
         const bufferKey = path ? `${path}.${propName}` : propName;
 
         const propTypeValue = detectTypeValue(propInfo as JSONProperty);

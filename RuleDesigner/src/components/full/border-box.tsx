@@ -73,7 +73,7 @@ function BorderBox({
       <Box
         className={childrenContainerClass}
         sx={{
-          height: 300,
+          height: "100%",
           width: 200,
           overflow: "auto",
         }}

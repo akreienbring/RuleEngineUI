@@ -2,6 +2,17 @@ import { type JSX } from "react";
 import { RuleExpression } from "rule-engine-js";
 
 /**
+ * A TestObject has a name and an object. Test Objects are used to evaluate rules against them.
+ * This helps create rules that later will be used in real world scenarios.
+ * @property {string} name - The name of a test object
+ * @property {object} testObject - The object that is used for rule evaluation.
+ */
+export type TestObject = {
+  name: string;
+  testObject: object;
+};
+
+/**
  * InputSchema defines the properties that are available when creating a rule. It uses JSONSchema to do so.
  * @property {string} name - The name of the input schema
  * @property {string} description - A description of the input schema

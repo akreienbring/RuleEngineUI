@@ -25,10 +25,9 @@ export default function SchemaSelect({
 }: SchemaSelectProps): JSX.Element {
   return (
     <TextField
-      label="Select a schema"
+      label="Select a Schema"
       onChange={(event) => handleSchemaSelect(Number(event.target.value))}
       size="small"
-      variant="filled"
       select
       value={schemaId}
       sx={{ width: 200, zIndex: "tooltip" }}

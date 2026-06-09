@@ -76,13 +76,13 @@ export default function TestDialog({
     testObj as EvaluationContext,
   ) as EvaluationResult;
 
-   const isTestValid = evaluationResult.success;
+  const isTestValid = evaluationResult.success;
 
   let commandResults: string[] = [];
   if (isTestValid && typeof rule.commandsDevices !== "undefined") {
     commandResults = rule.commandsDevices.map((command) => {
       const commandFunc = commands[command.command];
-      return commandFunc(command.device.cname);
+      return commandFunc(command.device.name);
     });
   }
 

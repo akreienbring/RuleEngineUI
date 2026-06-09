@@ -7,10 +7,10 @@ import {
   getNoCompareOperators,
   getStateOperators,
 } from "@src/components/utils/operator-utils";
-import PropertyToolbar from "./property-toolbar";
-import OperatorSelect from "../general/operator-select";
-import TextFieldValue1 from "../general/textfield-value1";
-import TextFieldValue2 from "../general/textfield-value2";
+import PropertyToolbar from "../full/property-toolbar";
+import OperatorSelect from "./operator-select";
+import TextFieldValue1 from "./textfield-value1";
+import TextFieldValue2 from "./textfield-value2";
 import {
   ListItem,
   Box,
@@ -23,6 +23,7 @@ import {
 
 interface PropertyItemProps {
   isExpanded: boolean;
+  isSimple: boolean;
   level: number;
   propName: string;
   properties: PropertyBuffer;
@@ -47,6 +48,7 @@ interface PropertyItemProps {
  * It allows the user to select an operator and a value to compare the property with.
  * @param {PropertyItemProps} props
  * @param {boolean} props.isExpanded If true all subproperties of the property are shown, otherwise they are hidden
+ * @param {boolean} props.isSimple - If true the simple property item (for SimpleRule) is rendered else the more complex one (for CreateRule)
  * @param {number} props.level The level of the property in the schema (determines indentation)
  * @param {Property} props.property The property object containing current and original values and operators.
  * @param {string} props.bufferKey The key of the property in the buffer
@@ -61,6 +63,7 @@ interface PropertyItemProps {
  */
 export default function PropertyItem({
   isExpanded,
+  isSimple,
   level,
   properties,
   bufferKey,
@@ -85,7 +88,7 @@ export default function PropertyItem({
   const indent = 3;
   const itemMinWidth = 240;
   const inputWidth =
-    property.operators[0] === "between" || isStateOperator ? 350 / 2 : 350;
+    property.operators[0] === "between" || isStateOperator ? 350 / 2 - 8 : 350;
 
   /**
    * Create a list of properties that can be compared with other properties of the same object
@@ -203,49 +206,55 @@ export default function PropertyItem({
               handleValueChange={handleValueChange}
             />
           )}
-          <PropertyToolbar
-            property={property}
-            bufferKey={bufferKey}
-            isPropertySelect={isPropertySelect}
-            isNoCompareOperator={isNoCompareOperator}
-            handleResetProperty={handleResetProperty}
-            handlePropertySelection={handlePropertySelection}
-            handleAddOperator={handleAddOperator}
-            handleDeleteOperator={handleDeleteOperator}
-          />
+          {!isSimple && (
+            <PropertyToolbar
+              property={property}
+              bufferKey={bufferKey}
+              isPropertySelect={isPropertySelect}
+              isNoCompareOperator={isNoCompareOperator}
+              handleResetProperty={handleResetProperty}
+              handlePropertySelection={handlePropertySelection}
+              handleAddOperator={handleAddOperator}
+              handleDeleteOperator={handleDeleteOperator}
+            />
+          )}
         </Stack>
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            alignItems: "baseline-top",
-            justifyContent: "flex-start",
-            mr: 2,
-            mb: 1,
-            mt: 1,
-            visibility: property.isChecked ? "visible" : "hidden",
-          }}
-        >
-          {property.operators.map((operator, operatorIndex) => {
-            if (operatorIndex > 0)
-              return (
-                <Chip
-                  key={`CHIP_${bufferKey}_${operatorIndex}`}
-                  onDelete={() =>
-                    handleDeleteOperator(bufferKey, operatorIndex)
-                  }
-                  onClick={() => handleSelectOperator(bufferKey, operatorIndex)}
-                  sx={{
-                    height: 25,
-                    width: "fit-content",
-                    "& .MuiChip-label": { fontSize: "1em" },
-                    mt: 1,
-                  }}
-                  label={operator}
-                />
-              );
-          })}
-        </Stack>
+        {!isSimple && (
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "baseline-top",
+              justifyContent: "flex-start",
+              mr: 2,
+              mb: 1,
+              mt: 1,
+              visibility: property.isChecked ? "visible" : "hidden",
+            }}
+          >
+            {property.operators.map((operator, operatorIndex) => {
+              if (operatorIndex > 0)
+                return (
+                  <Chip
+                    key={`CHIP_${bufferKey}_${operatorIndex}`}
+                    onDelete={() =>
+                      handleDeleteOperator(bufferKey, operatorIndex)
+                    }
+                    onClick={() =>
+                      handleSelectOperator(bufferKey, operatorIndex)
+                    }
+                    sx={{
+                      height: 25,
+                      width: "fit-content",
+                      "& .MuiChip-label": { fontSize: "1em" },
+                      mt: 1,
+                    }}
+                    label={operator}
+                  />
+                );
+            })}
+          </Stack>
+        )}
       </Box>
     </Stack>
   );

@@ -31,7 +31,7 @@ export default function LogicSelect({
   return (
     <FormControl>
       <FormLabel
-        sx={{ fontSize: 12, mt: 1 }}
+        sx={{ fontSize: 12, mt: -1 }}
       >{`Selected Rule: ${operator}`}</FormLabel>
       <RadioGroup
         row

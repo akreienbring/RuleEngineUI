@@ -15,6 +15,7 @@ import type {
   Addon,
   InputSchema,
   JSONSchema,
+  TestObject,
 } from "@src/components/types/public";
 import { createSchema } from "@omni-clm/genson-js";
 import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
@@ -24,42 +25,70 @@ import Freddy from "@src/designer/freddy";
 import CommandDevice from "@src/designer/command-device";
 import { Tab, Tabs, Box } from "@mui/material";
 
-//----------------Create some data for testing
+//Create some data for testing the customization of the Simple UI
 const commands = ["TurnOFF", "TurnON"];
 const devices = [
-  { cname: "Küche", id: "1" },
-  { cname: "Flur", id: "2" },
-  { cname: "Bad", id: "3" },
+  { name: "Küche", value: "1" },
+  { name: "Flur", value: "2" },
+  { name: "Bad", value: "3" },
 ];
-const sourceObj = {
-  name: "John Doe",
-  age: 28,
-  role: "admin",
-  email: "john@company.com",
-  permissions: ["read", "write", "delete"],
-  sys: {
-    up: 5,
-    country: "Spain",
-    third: { test: false, valid: "yoath" },
+
+/*
+  Due to this bug: https://github.com/crafts69guy/rule-engine-js/issues/11
+  nested objects can't be used with stateful operators. 
+  Left here for reference
+*/
+const NotifyStatusSchemaOld = {
+  $schema: "http://json-schema.org/draft-04/schema#",
+  type: "object",
+  properties: {
+    src: {
+      enum: devices,
+    },
+    params: {
+      type: "object",
+      properties: {
+        "rgbw:0": {
+          type: "object",
+          properties: {
+            current: {
+              type: "integer",
+            },
+          },
+          required: ["current"],
+        },
+      },
+      required: ["rgbw:0"],
+    },
   },
-  verdad: true,
-  permission: "write",
-  countries: ["Germany", "Spain", "Greece"],
-  minAge: 12,
-  maxAge: 30,
+  required: ["src", "method", "params"],
 };
 
-const NotifyEvent = {
-  source: "Button",
-  pressed: 1,
+const notifyStatusOld = {
+  src: "1",
+  params: { "rgbw:0": { current: 5.2 } },
 };
 
-const NotifyStatus = {
-  consumption: 4,
-  connected: true,
+const NotifyStatusSchema = {
+  $schema: "http://json-schema.org/draft-04/schema#",
+  type: "object",
+  properties: {
+    src: {
+      enum: devices,
+    },
+    current: {
+      type: "integer",
+    },
+  },
+  required: ["src", "current"],
 };
 
-const dogSchema = {
+const notifyStatus = {
+  src: "1",
+  current: 5.2,
+};
+
+const freddySchema = {
   type: "object",
   properties: {
     name: { const: "Freddy" },
@@ -78,15 +107,59 @@ const dogSchema = {
   required: ["name", "age"],
 } as JSONSchema;
 
-const schema1 = createSchema(NotifyEvent) as JSONSchema;
-const schema2 = createSchema(NotifyStatus) as JSONSchema;
-const schema3 = createSchema(sourceObj) as JSONSchema;
+const freddy = {
+  name: "Freddy",
+  state: "sleeping",
+  dances: "Kizomba",
+  favoriteFood: "2",
+  hunger: 1,
+};
+
+const nestedObj = {
+  name: "John Doe",
+  age: 28,
+  role: "admin",
+  email: "john@company.com",
+  permissions: ["read", "write", "delete"],
+  sys: {
+    up: 5,
+    country: "Spain",
+    third: { test: false, valid: "yoath" },
+  },
+  verdad: true,
+  permission: "write",
+  countries: ["Germany", "Spain", "Greece"],
+  minAge: 12,
+  maxAge: 30,
+};
+
+const nestedObjSchema = createSchema(nestedObj) as JSONSchema;
 
 const schemas: InputSchema[] = [
-  { name: "Event", description: "New", schema: schema1, schemaId: 0 },
-  { name: "Status", description: "Old", schema: schema2, schemaId: 1 },
-  { name: "Large Object", description: "Old", schema: schema3, schemaId: 2 },
-  { name: "Dog", description: "degSchema", schema: dogSchema, schemaId: 3 },
+  {
+    name: "Freddy",
+    description: "dogSchema",
+    schema: freddySchema,
+    schemaId: 3,
+  },
+  {
+    name: "NotifyStatus",
+    description: "NotifyStatus",
+    schema: NotifyStatusSchema,
+    schemaId: 1,
+  },
+  {
+    name: "NestedObj",
+    description: "Old",
+    schema: nestedObjSchema,
+    schemaId: 2,
+  },
+];
+
+const testObjects: TestObject[] = [
+  { name: "Freddy", testObject: freddy },
+  { name: "NotifyStatus", testObject: notifyStatus },
+  { name: "SourceObj", testObject: nestedObj },
 ];
 //----------------
 
@@ -172,7 +245,7 @@ export default function RuleDesigner(): JSX.Element {
    */
   const handleDeviceChange = (id: string, cdIndex: number) => {
     const newCommandsDevices = [...commandsDevices];
-    const selectedDevice = devices.find((device) => device.id === id);
+    const selectedDevice = devices.find((device) => device.value === id);
     if (typeof selectedDevice !== "undefined")
       newCommandsDevices[cdIndex].device = selectedDevice;
     setCommandsDevices(newCommandsDevices);
@@ -188,7 +261,7 @@ export default function RuleDesigner(): JSX.Element {
     const leftDevices = devices.filter(
       (device) =>
         newCommandsDevices.findIndex(
-          (commandDevice) => commandDevice.device.id === device.id,
+          (commandDevice) => commandDevice.device.value === device.value,
         ) === -1,
     );
 
@@ -212,7 +285,7 @@ export default function RuleDesigner(): JSX.Element {
   const addons: Addon[] = [
     {
       summary: "Select the Actions",
-      selected: `${commandsDevices[0].command} ${commandsDevices[0].device.cname}`,
+      selected: `${commandsDevices[0].command} ${commandsDevices[0].device.name}`,
       details: (
         <CommandDevice
           commands={commands}
@@ -241,7 +314,7 @@ export default function RuleDesigner(): JSX.Element {
       </Tabs>
       {currentTabIndex === 0 && (
         <RuleView
-          testObj={NotifyEvent}
+          testObj={notifyStatus}
           schemas={schemas}
           addons={addons}
           archivedRules={archivedRules}
@@ -254,7 +327,7 @@ export default function RuleDesigner(): JSX.Element {
       {currentTabIndex === 1 && (
         <RuleEngineJSUI
           schemas={schemas}
-          testObj={sourceObj}
+          testObjects={testObjects}
           maxLevel={3}
           isSaveRule={true}
           archivedRules={archivedRules}

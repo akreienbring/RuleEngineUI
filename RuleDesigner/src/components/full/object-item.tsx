@@ -38,6 +38,10 @@ export default function ObjectItem({
         <ListItemIcon key={createUUID()} sx={{ ml: -1.3 }}>
           <DataObject />
         </ListItemIcon>
+        <ListItemText
+          key={createUUID()}
+          primary={path.substring(0, path.lastIndexOf("."))}
+        />
         {level > 0 && (isExpanded ? <ExpandLess /> : <ExpandMore />)}
       </ListItemButton>
     </ListItem>

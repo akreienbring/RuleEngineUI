@@ -2,7 +2,7 @@
   Author: André Kreienbring
   A table that presents stored rules
 */
-import type { ArchivedRule } from "@src/components/types/public";
+import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import {
   Typography,
   Table,
@@ -18,6 +18,7 @@ import { createUUID } from "@src/components/utils/general";
 
 interface RulesTableProps {
   archivedRules: ArchivedRule[];
+  schemas: InputSchema[];
   schemaId?: number;
   schemaName?: string;
   handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
@@ -28,6 +29,7 @@ interface RulesTableProps {
  * For loading as a subrule, the given schemaId restricts the offered rules to the schema of the parent rule.
  * @param {RulesTableProps} props
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
+ * @param {InputSchema[]} props.schemas - A list of schemas
  * @param {number} [props.schemaId] - If given, indicates that the rule will be added to a parent rule as subrule.
  * @param {string} [props.schemaName] - If given, the name of the schema of the rule
  * @param {Function} props.handleLoadArchiveRule - Called when an already existing rule is added as a subrule
@@ -35,6 +37,7 @@ interface RulesTableProps {
  */
 export default function RulesTable({
   archivedRules,
+  schemas,
   schemaId,
   schemaName,
   handleLoadArchiveRule,
@@ -56,29 +59,34 @@ export default function RulesTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {validRules.map((archivedRule) => (
-            <TableRow
-              key={createUUID()}
-              onClick={(event) => handleLoadArchiveRule(archivedRule)}
-              sx={{
-                "&:last-child td, &:last-child th": { border: 0 },
-                cursor: "pointer",
-              }}
-            >
-              <TableCell component="th" scope="row">
-                {archivedRule.name}
-              </TableCell>
-              <TableCell align="right">{archivedRule.description}</TableCell>
-              <TableCell align="right">{schemaName}</TableCell>
-              <TableCell align="right">{archivedRule.operator}</TableCell>
-            </TableRow>
-          ))}
+          {validRules.map((archivedRule) => {
+            const ruleSchema = schemas.find(
+              (schema) => schema.schemaId === archivedRule.schemaId,
+            );
+            return (
+              <TableRow
+                key={createUUID()}
+                onClick={(event) => handleLoadArchiveRule(archivedRule)}
+                sx={{
+                  "&:last-child td, &:last-child th": { border: 0 },
+                  cursor: "pointer",
+                }}
+              >
+                <TableCell component="th" scope="row">
+                  {archivedRule.name}
+                </TableCell>
+                <TableCell align="right">{archivedRule.description}</TableCell>
+                <TableCell align="right">{ruleSchema?.name}</TableCell>
+                <TableCell align="right">{archivedRule.operator}</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
       {validRules.length === 0 && (
         <Box sx={{ width: 1, justifyContent: "center" }}>
           <Typography>
-            {`There is no rule ${typeof schemaId !== "undefined" ? "for the parentrule schema" : ""}`}
+            {`There is no rule ${typeof schemaId !== "undefined" ? "for the parentrule schema " + schemaName : ""}`}
           </Typography>
         </Box>
       )}

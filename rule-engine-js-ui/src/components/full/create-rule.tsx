@@ -9,7 +9,11 @@
 */
 
 import { type JSX, useState, useEffect } from "react";
-import type { ArchivedRule, InputSchema } from "@src/components/types/public";
+import type {
+  ArchivedRule,
+  InputSchema,
+  TestObject,
+} from "@src/components/types/public";
 import { EvaluationResult, RuleExpression } from "rule-engine-js";
 import RuleList from "./rule-list";
 import PropertyList from "../general/property-list";
@@ -35,7 +39,7 @@ import { useValidation } from "@src/components/general/use-validation";
 
 interface CreateRuleProps {
   schemas: InputSchema[];
-  testObj: object;
+  testObjects: TestObject[];
   maxLevel?: number;
   archivedRules: ArchivedRule[];
   prepareSaveRule: (
@@ -51,7 +55,7 @@ interface CreateRuleProps {
  * @param {CreateRuleProps} props
  * @param {InputSchema[]} props.schemas - A list of JSON schemas to build a rule for. Schemas must be provided by the user of the rule designer
  * @param {schemaId} props.schemaId - The id of the currently selected schema
- * @param {object} props.testObj - An object used to validate the created rule with. This helps visually testing the rule while it is created
+ * @param {object} props.testObjects - A created rule will be tested against one of these objects
  * @param {number} [props.maxLevel] - If provided, the JSON schema is only analized up to the given depht
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
  * @param {Function} props.handleSchemaSelect - Called when a different schema must be selected
@@ -60,15 +64,15 @@ interface CreateRuleProps {
  */
 export default function CreateRule({
   schemas,
-  testObj,
+  testObjects,
   maxLevel,
   archivedRules,
   prepareSaveRule,
 }: CreateRuleProps): JSX.Element {
   const { validateProperties } = useValidation();
-  const [schemaId, setSchemaIndex] = useState(0);
+  const [schemaId, setSchemaId] = useState(0);
   const [properties, setProperties] = useState<PropertyBuffer>(
-    createProperties(schemas[schemaId].schema, testObj, null),
+    createProperties(schemas[schemaId].schema, testObjects[0].testObject, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>({
     and: [],
@@ -81,6 +85,7 @@ export default function CreateRule({
   const [isShowRuleText, setIsShowRuleText] = useState(false);
   const [isTestValid, setIsTestValid] = useState(false);
   const [isStatefulRule, setIsStatefulRule] = useState(false);
+  const [testObjectId, setTestObjectId] = useState(0);
 
   /**
    * When the component is first loaded, a rule is created and tested based on the initial selected JSON schema and the given test object.
@@ -90,7 +95,7 @@ export default function CreateRule({
     const newRule = buildRule(properties, "and") as RuleExpression;
     setTopRule(newRule);
 
-    checkTopRule("and", newRule);
+    checkTopRule("and", newRule, 0);
   }, []);
 
   /**
@@ -98,8 +103,15 @@ export default function CreateRule({
    * Also checks if the top rule is a stateful rule.
    * @param {Operator} operator - The operator of the top rule
    * @param {RuleExpression} rule - The top rule
+   * @param {number} tObjId - The id of the test object
+   * @param {PropertyBuffer} newProperties - If given, uses this properties instaed the state properties (If a rule was loaded)
    */
-  const checkTopRule = (operator: Operator, rule: RuleExpression) => {
+  const checkTopRule = (
+    operator: Operator,
+    rule: RuleExpression,
+    tObjId: number,
+    newProperties?: PropertyBuffer,
+  ) => {
     const isStatefulRule = hasStateOperator(rule[operator] as object[]);
     setIsStatefulRule(isStatefulRule);
 
@@ -109,32 +121,59 @@ export default function CreateRule({
         Stateful rules need a first evaluation to detect changes.
         NOTE: this also works if firstEvel is an empty object {}
       */
-      const firstEval = createFirstEval(properties);
+      const firstEval = newProperties
+        ? createFirstEval(newProperties)
+        : createFirstEval(properties);
       console.log(JSON.stringify(firstEval));
 
-      validateRule(operator, firstEval, rule).then((testResult) => {
-        validateRule(operator, testObj, rule).then((testResult) => {
-          setIsTestValid(testResult.success);
-        });
+      validateRule(operator, firstEval, rule, true).then((testResult) => {
+        console.log(`First eval: ${JSON.stringify(testResult)}`);
+        validateRule(operator, testObjects[tObjId].testObject, rule).then(
+          (testResult) => {
+            console.log(`Second eval: ${JSON.stringify(testResult)}`);
+            setIsTestValid(testResult.success);
+          },
+        );
       });
     } else {
-      validateRule(operator, testObj, rule).then((testResult) => {
-        setIsTestValid(testResult.success);
-      });
+      validateRule(operator, testObjects[tObjId].testObject, rule, false).then(
+        (testResult) => {
+          setIsTestValid(testResult.success);
+        },
+      );
     }
   };
 
   /**
-   * Called from the toolbar when a different schema is selected.
-   * Sets the new schema index. This will update the property list due to the useEffect in PropertyList
+   * Called from the toolbar when a different test object is selected.
    * and build a new rule based on the new schema.
+   * @param {number} tObjId - The id of the newly selected test object
+   */
+  const handleTestObjectSelect = (tObjId: number) => {
+    setTestObjectId(tObjId);
+    const newProperties = createProperties(
+      schemas[schemaId].schema,
+      testObjects[tObjId].testObject,
+      null,
+    );
+    setProperties(newProperties);
+
+    const newRule = buildRule(newProperties, topOperator) as RuleExpression;
+    setTopRule(newRule);
+
+    checkTopRule(topOperator, newRule, tObjId);
+  };
+
+  /**
+   * Called from the toolbar when a different schema is selected.
+   * Sets the new schema index. This will build a new rule based on the new schema.
    * @param {number} schemaId - The id of the newly selected schema
    */
   const handleSchemaSelect = (schemaId: number) => {
-    setSchemaIndex(schemaId);
+    setSchemaId(schemaId);
     const newProperties = createProperties(
       schemas[schemaId].schema,
-      testObj,
+      testObjects[testObjectId].testObject,
       null,
     );
     setProperties(newProperties);
@@ -144,7 +183,7 @@ export default function CreateRule({
     setTopOperator("and");
     setSelectedRule({ uuid: "", operator: "and" });
 
-    checkTopRule("and", newRule);
+    checkTopRule("and", newRule, testObjectId);
   };
 
   /**
@@ -178,16 +217,20 @@ export default function CreateRule({
     setSelectedRule({ uuid: "", operator: archivedRule.operator });
     setTopOperator(archivedRule.operator);
     setTopRule(archivedRule.rule);
-    setProperties(
-      createProperties(
-        schemas[archivedRule.schemaId].schema,
-        null,
-        archivedRule,
-      ),
+    const newProperties = createProperties(
+      schemas[archivedRule.schemaId].schema,
+      null,
+      archivedRule,
     );
-    setSchemaIndex(archivedRule.schemaId);
+    setProperties(newProperties);
+    setSchemaId(archivedRule.schemaId);
 
-    checkTopRule(archivedRule.operator, archivedRule.rule);
+    checkTopRule(
+      archivedRule.operator,
+      archivedRule.rule,
+      testObjectId,
+      newProperties,
+    );
   };
 
   /**
@@ -230,7 +273,7 @@ export default function CreateRule({
       */
 
       setTopRule(newTopRule);
-      checkTopRule(finalTopOperator, newTopRule);
+      checkTopRule(finalTopOperator, newTopRule, testObjectId);
     } else {
       const searchResult = findSubrule(
         topRule[topOperator] as object[],
@@ -257,11 +300,15 @@ export default function CreateRule({
       */
 
       subrule.rule = newSubRule;
-      validateRule(subrule.operator, testObj, newSubRule).then((testResult) => {
+      validateRule(
+        subrule.operator,
+        testObjects[testObjectId].testObject,
+        newSubRule,
+      ).then((testResult) => {
         subrule.isValid = testResult.success;
       });
 
-      checkTopRule(finalTopOperator, newTopRule);
+      checkTopRule(finalTopOperator, newTopRule, testObjectId);
     }
   };
 
@@ -326,7 +373,7 @@ export default function CreateRule({
     setTopRule(newTopRule);
     handleSelectedRuleChange({ uuid: "", operator: topOperator });
 
-    checkTopRule(topOperator, newTopRule);
+    checkTopRule(topOperator, newTopRule, testObjectId);
   };
 
   /**
@@ -368,7 +415,7 @@ export default function CreateRule({
     handleSelectedRuleChange({ uuid: subrule.uuid, operator });
 
     setTopRule(newTopRule);
-    checkTopRule(topOperator, newTopRule);
+    checkTopRule(topOperator, newTopRule, testObjectId);
   };
 
   /**
@@ -414,7 +461,7 @@ export default function CreateRule({
       setTopOperator(newOperator);
       setTopRule(newRule);
 
-      checkTopRule(newOperator, newRule);
+      checkTopRule(newOperator, newRule, testObjectId);
     } else {
       const searchResult = findSubrule(
         topRule[topOperator] as object[],
@@ -431,13 +478,15 @@ export default function CreateRule({
       const newTopRule: RuleExpression = { ...topRule };
       setTopRule(newTopRule);
 
-      validateRule(subrule.operator, testObj, subrule.rule).then(
-        (testResult) => {
-          subrule.isValid = testResult.success;
-        },
-      );
+      validateRule(
+        subrule.operator,
+        testObjects[testObjectId].testObject,
+        subrule.rule,
+      ).then((testResult) => {
+        subrule.isValid = testResult.success;
+      });
 
-      checkTopRule(topOperator, topRule);
+      checkTopRule(topOperator, topRule, testObjectId);
     }
   };
 
@@ -464,10 +513,13 @@ export default function CreateRule({
       <CreateRuleToolbar
         schemas={schemas}
         schemaId={schemaId}
+        testObjects={testObjects}
+        testObjectId={testObjectId}
         operator={selectedRule.operator}
         isShowRuleText={isShowRuleText}
         archivedRules={archivedRules}
         handleSchemaSelect={handleSchemaSelect}
+        handleTestObjectSelect={handleTestObjectSelect}
         handleResetAll={handleResetAll}
         handleRuleOperatorChange={handleRuleOperatorChange}
         toggleShowRuleText={toggleShowRuleText}
@@ -529,6 +581,7 @@ export default function CreateRule({
                   isTestValid={isTestValid}
                   uuid={""}
                   archivedRules={archivedRules}
+                  schemas={schemas}
                   schemaId={schemaId}
                   schemaName={schemas[schemaId].name}
                   handleSelectedRuleChange={handleSelectedRuleChange}
@@ -542,7 +595,7 @@ export default function CreateRule({
 
         <BorderBox
           icon={isTestValid ? VerifiedRounded : DoNotDisturbOnRounded}
-          title="Test Object"
+          title={testObjects[testObjectId].name}
           isValid={isTestValid}
           sx={{ pl: 3 }}
         >
@@ -552,7 +605,7 @@ export default function CreateRule({
               overflow: "auto",
             }}
           >
-            <ObjectList obj={testObj} />
+            <ObjectList obj={testObjects[testObjectId].testObject} />
           </Box>
         </BorderBox>
       </Stack>

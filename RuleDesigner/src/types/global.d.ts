@@ -8,7 +8,7 @@ declare global {
 
   type CommandDevice = {
     command: string;
-    device: { cname: string; id: string };
+    device: { name: string; value: string };
   };
 
   type CommandBuffer = {

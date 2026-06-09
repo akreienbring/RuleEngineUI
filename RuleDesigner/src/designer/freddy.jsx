@@ -69,7 +69,7 @@ export default function Freddy() {
   /**
    * This effect runs after the first render and does the first evaluation of the rule with the sleeping Freddy.
    * Then it runs everytime when the dog object was changed. Further evaluations trigger the rule, which can be
-   * used to set for example hunger.
+   * used to set for example a new image.
    */
   useEffect(() => {
     statefulEngine.evaluate("awake-freddy", isAwake, dog);

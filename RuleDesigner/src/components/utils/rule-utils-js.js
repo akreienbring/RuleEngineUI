@@ -80,10 +80,12 @@ export const buildRule = (properties, operator) => {
  * @param {object} obj - the object to test
  * @param {RuleExpression} rule - the rule used to evaluate the object
  * @param {boolean} isStatfulRule - If true the rule contains at least one stateful operator
+ * @param {boolean} isFirstEval - If true the state of a stateful rule will be reset before evaluation.
  * @returns {Promise<EvaluationResult>} The result with information about the evaluation (e.g. success, error...)
  */
-export const evaluateRule = async (obj, rule, isStatfulRule) => {
+export const evaluateRule = async (obj, rule, isStatfulRule, isFirstEval) => {
   if (isStatfulRule) {
+    if (isFirstEval) statefulRuleEngine.clearState("topRule");
     return statefulRuleEngine.evaluate("topRule", rule, obj).then((result) => {
       //console.log(`Stateful engine returned: ${JSON.stringify(result)}`);
       return result;

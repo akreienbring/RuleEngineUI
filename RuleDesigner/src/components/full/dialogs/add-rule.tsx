@@ -4,7 +4,7 @@
 import { type JSX, useState } from "react";
 import AddEmptyRule from "./add-empty-rule";
 import RulesTable from "./rules-table";
-import type { ArchivedRule } from "@src/components/types/public";
+import type { ArchivedRule, InputSchema } from "@src/components/types/public";
 import {
   Dialog,
   DialogActions,
@@ -19,6 +19,7 @@ interface AddRuleProps {
   isOpen: boolean;
   onClose: () => void;
   archivedRules: ArchivedRule[];
+  schemas: InputSchema[];
   schemaId: number;
   schemaName: string;
   handleAddEmptyRule: (operator: Operator) => void;
@@ -31,6 +32,7 @@ interface AddRuleProps {
  * @param {boolean} props.isOpen - If true the dialog is opened else closed
  * @param {Function} props.onClose - Called when the dialog must be or is closed
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a  rule
+ * @param {InputSchema[]} props.schemas - A list of schemas
  * @param {number} props.schemaId - The id of the currently selected schema
  * @param {string} props.schemaName - The name of the schema of the rule
  * @param {Function} props.handleAddEmptyRule - Called when an empty rule is added as a subrule
@@ -41,6 +43,7 @@ export default function AddRule({
   isOpen,
   onClose,
   archivedRules,
+  schemas,
   schemaId,
   schemaName,
   handleAddEmptyRule,
@@ -76,6 +79,7 @@ export default function AddRule({
           {currentTabIndex === 1 && (
             <RulesTable
               archivedRules={archivedRules}
+              schemas={schemas}
               schemaId={schemaId}
               schemaName={schemaName}
               handleLoadArchiveRule={handleLoadArchiveRule}

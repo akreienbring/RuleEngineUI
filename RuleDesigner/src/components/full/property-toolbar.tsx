@@ -13,6 +13,7 @@ import {
 } from "@mui/icons-material";
 import { isOriginal } from "@src/components/utils/general";
 import { getOperators } from "../utils/operator-utils";
+import { createUUID } from "../utils/general";
 
 interface PropertyToolbarProps {
   property: Property;
@@ -49,7 +50,7 @@ export default function PropertyToolbar({
   handlePropertySelection,
 }: PropertyToolbarProps): JSX.Element {
   return (
-    <Stack direction="row" spacing={1} sx={{ pt: 1.5 }}>
+    <Stack key={createUUID()} direction="row" spacing={1} sx={{ pt: 1.5 }}>
       {isPropertySelect ? (
         <Tooltip title="Input Value">
           <IconButton
@@ -63,6 +64,7 @@ export default function PropertyToolbar({
         <Tooltip title="Select Property">
           <span>
             <IconButton
+              key={createUUID()}
               disabled={
                 isNoCompareOperator ||
                 property.type === "array" ||
@@ -81,6 +83,7 @@ export default function PropertyToolbar({
       <Tooltip title={`Reset`}>
         <span>
           <IconButton
+            key={createUUID()}
             disabled={
               isOriginal(property) &&
               property.operators[0] === property.origOperator
@@ -95,6 +98,7 @@ export default function PropertyToolbar({
       <Tooltip title="Add operator">
         <span>
           <IconButton
+            key={createUUID()}
             disabled={
               property.operators.length ===
                 getOperators(
@@ -112,6 +116,7 @@ export default function PropertyToolbar({
       <Tooltip title="Delete operator">
         <span>
           <IconButton
+            key={createUUID()}
             disabled={property.operators.length === 1}
             onClick={() => handleDeleteOperator(bufferKey, 0)}
             sx={{ p: 0, ml: 0, mr: 0, height: "fit-content" }}
