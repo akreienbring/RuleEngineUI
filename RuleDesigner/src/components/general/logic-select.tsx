@@ -30,9 +30,6 @@ export default function LogicSelect({
 }: LogicSelectProps): JSX.Element {
   return (
     <FormControl>
-      <FormLabel
-        sx={{ fontSize: 12, mt: -1 }}
-      >{`Selected Rule: ${operator}`}</FormLabel>
       <RadioGroup
         row
         value={operator ? operator : "and"}

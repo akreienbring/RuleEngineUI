@@ -7,10 +7,14 @@
 */
 
 import { createRuleEngine, StatefulRuleEngine } from "rule-engine-js";
-import { getNoCompareOperators } from "@src/components/utils/operator-utils";
+import {
+  getNoCompareOperators,
+  getStateOperators,
+} from "@src/components/utils/operator-utils";
 
 const ruleEngine = createRuleEngine();
 const statefulRuleEngine = new StatefulRuleEngine(ruleEngine);
+const stateOperators = getStateOperators();
 
 /**
  * Builds a NEW rule based on the (JSON schema) properties in the property buffer.
@@ -74,24 +78,74 @@ export const buildRule = (properties, operator) => {
 };
 
 /**
+ * Uses a recursion to check if the rule has operators that require the stateful rule engine
+ * @param {object[]} operators - The list of operators of the rule with subrules
+ * @returns {boolean} true if the rule has at least state operator, false otherwise
+ */
+export function hasStateOperator(operators) {
+  let result = false;
+  const ruleOperators = [];
+
+  operators.forEach((operator) => {
+    Object.entries(operator).forEach(([operatorName, value]) => {
+      if (
+        operatorName === "and" ||
+        operatorName === "or" ||
+        operatorName === "not"
+      ) {
+        //value is an array with all the (sub) operators of the rule
+        ruleOperators.push({ operator: operatorName, value });
+      } else {
+        //operator !== and, or, not. Push to result
+        if (stateOperators.includes(operatorName)) {
+          result = true;
+        }
+      }
+    });
+  });
+
+  ruleOperators.forEach((ruleOperator) => {
+    const subOperators = ruleOperator.value;
+    //and start the recursion
+    result = hasStateOperator(subOperators);
+  });
+
+  return result;
+}
+
+/**
  * Test the rule against the given object.
  * TODO: achieve the same in Typescript
  * @async
- * @param {object} obj - the object to test
  * @param {RuleExpression} rule - the rule used to evaluate the object
- * @param {boolean} isStatfulRule - If true the rule contains at least one stateful operator
- * @param {boolean} isFirstEval - If true the state of a stateful rule will be reset before evaluation.
+ * @param {Operator} operator - the operator of the rule (and, or, not).
+ * @param {object} testObj - the object to test
+ * @param {object} [firstEval] - An object for the first evaluation of a stateful rule. If given, the state of the stateful engine is reset befor the first evaluation
  * @returns {Promise<EvaluationResult>} The result with information about the evaluation (e.g. success, error...)
  */
-export const evaluateRule = async (obj, rule, isStatfulRule, isFirstEval) => {
-  if (isStatfulRule) {
-    if (isFirstEval) statefulRuleEngine.clearState("topRule");
-    return statefulRuleEngine.evaluate("topRule", rule, obj).then((result) => {
-      //console.log(`Stateful engine returned: ${JSON.stringify(result)}`);
-      return result;
-    });
+export const evaluateRule = async (rule, operator, testObj, firstEval) => {
+  const isStatefulRule = hasStateOperator(rule[operator]);
+
+  if (isStatefulRule) {
+    if (typeof firstEval !== "undefined") {
+      statefulRuleEngine.clearState("topRule");
+      statefulRuleEngine.evaluate("topRule", rule, firstEval).then((result) => {
+        console.log(
+          `First evaluation with Stateful Engine returned: ${JSON.stringify(result)}`,
+        );
+      });
+    }
+
+    return statefulRuleEngine
+      .evaluate("topRule", rule, testObj)
+      .then((result) => {
+        console.log(
+          `Second evaluation with Stateful Engine returned: ${JSON.stringify(result)}`,
+        );
+        return result;
+      });
   } else {
-    const result = ruleEngine.evaluateExpr(rule, obj);
+    const result = ruleEngine.evaluateExpr(rule, testObj);
     return Promise.resolve(result);
   }
 };

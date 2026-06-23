@@ -209,10 +209,19 @@ export default function PropertyList({
         isObject = true;
         lastLevel++;
       }
-      if (isSimple) {
-        elements.push(
+      elements.push(
+        <Stack key={`ST_${bufferKey}`}>
+          {isObject && !isSimple && (
+            <ObjectItem
+              level={property.level}
+              indent={indent}
+              path={property.level > 0 ? bufferKey : ""}
+              isExpanded={isExpanded}
+              handleExpandObject={handleExpandObject}
+            />
+          )}
           <PropertyItem
-            isExpanded={true}
+            isExpanded={isExpanded}
             isSimple={isSimple}
             level={property.level}
             propName={property.key}
@@ -225,38 +234,9 @@ export default function PropertyList({
             handleAddOperator={handleAddOperator}
             handleResetProperty={handleResetProperty}
             handleSelectOperator={handleSelectOperator}
-          />,
-        );
-      } else {
-        elements.push(
-          <Stack key={`ST_${bufferKey}`}>
-            {isObject && (
-              <ObjectItem
-                level={property.level}
-                indent={indent}
-                path={property.level > 0 ? bufferKey : ""}
-                isExpanded={isExpanded}
-                handleExpandObject={handleExpandObject}
-              />
-            )}
-            <PropertyItem
-              isExpanded={isExpanded}
-              isSimple={isSimple}
-              level={property.level}
-              propName={property.key}
-              properties={properties}
-              bufferKey={bufferKey}
-              handlePropCheck={handlePropCheck}
-              handlePropOperatorChange={handlePropOperatorChange}
-              handleValueChange={handleValueChange}
-              handleDeleteOperator={handleDeleteOperator}
-              handleAddOperator={handleAddOperator}
-              handleResetProperty={handleResetProperty}
-              handleSelectOperator={handleSelectOperator}
-            />
-          </Stack>,
-        );
-      }
+          />
+        </Stack>,
+      );
     });
   };
 

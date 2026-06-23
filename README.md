@@ -7,7 +7,7 @@ An userinterface for [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine
 ## Overview
 
 [Rule-Engine-JS](https://github.com/crafts69guy/rule-engine-js) is a JSON based Rule Engine used to validate / evaluate objects. This means a rule can be used to check if a certain object with certain properties complies to a given rule.
-RuleEngineUI offers two visual user interfaces for creating rules for Rule-Engine-JS (rule-engine-js-ui) and a Test Application with many examples how to implement and use them (RuleDesigner).
+RuleEngineUI (rule-engine-js-ui) offers two visual user interfaces for creating rules for Rule-Engine-JS and a Test Application with many examples how to implement and use them (RuleDesigner).
 All of this is based on React and uses MUI for styling. That's why these libraries must be installed in the application that uses this package.
 
 ## General features
@@ -65,11 +65,13 @@ RuleEngineJSUI exports four components that you can import in your application:
 - **import { RuleEngineJSUI } from "rule-engine-js-ui";**<br/>
   The two main UI's to create rules. Which interface is loaded depends on the properties you pass to the component. Look at [RuleDesigner](https://github.com/akreienbring/RuleEngineUI/tree/main/RuleDesigner) for a reference implementation of the two interfaces!
 - **import { BorderBox } from "rule-engine-js-ui";**<br/>
-  A custom box with border, title and icon. Can be used to wrap...
+  A custom box with border, title and icon. Can for example be used to wrap ObjectList and SimpleRuleList
 - **import { ObjectList } from "rule-engine-js-ui";**<br/>
   A component that turns an object into a better readable list.
 - **import { SimpleRuleList } from "rule-engine-js-ui";**<br/>
   A visual representation of a rule with it's operators
+  **import { evaluateRule } from "rule-engine-js-ui";**<br/>
+  A function to evaluate both: stateful and stateless rules with given testobjects
 
 ## Screenshots
 

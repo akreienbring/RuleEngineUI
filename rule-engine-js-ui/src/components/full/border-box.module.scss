@@ -7,9 +7,9 @@ $border-color-red: red;
   flex-direction: column;
   max-width: 100%;
 
-  border-left: 1px solid $border-color-grey;
-  border-bottom: 1px solid $border-color-grey;
-  border-right: 1px solid $border-color-grey;
+  border-left: 1px solid $border-color-grey !important;
+  border-bottom: 1px solid $border-color-grey !important;
+  border-right: 1px solid $border-color-grey !important;
   border-radius: 5px;
   margin: 1em;
 
@@ -24,7 +24,7 @@ $border-color-red: red;
     width: 100% !important;
 
     .headerBorderBeforeGrey {
-      border-top: 1px solid $border-color-grey;
+      border-top: 1px solid $border-color-grey !important;
       width: 1em;
       border-top-left-radius: 5px;
     }
@@ -45,7 +45,7 @@ $border-color-red: red;
     }
 
     .headerBorderAfterGrey {
-      border-top: 1px solid $border-color-grey;
+      border-top: 1px solid $border-color-grey !important;
       width: 1em;
       flex-grow: 2;
       border-top-right-radius: 5px;
@@ -58,9 +58,9 @@ $border-color-red: red;
   flex-direction: column;
   max-width: 100%;
 
-  border-left: 1px solid $border-color-green;
-  border-bottom: 1px solid $border-color-green;
-  border-right: 1px solid $border-color-green;
+  border-left: 1px solid $border-color-green !important;
+  border-bottom: 1px solid $border-color-green !important;
+  border-right: 1px solid $border-color-green !important;
   border-radius: 5px;
   margin: 1em;
 
@@ -75,7 +75,7 @@ $border-color-red: red;
     width: 100% !important;
 
     .headerBorderBeforeGreen {
-      border-top: 1px solid $border-color-green;
+      border-top: 1px solid $border-color-green !important;
       width: 1em;
       border-top-left-radius: 5px;
     }
@@ -96,7 +96,7 @@ $border-color-red: red;
     }
 
     .headerBorderAfterGreen {
-      border-top: 1px solid $border-color-green;
+      border-top: 1px solid $border-color-green !important;
       width: 1em;
       flex-grow: 2;
       border-top-right-radius: 5px;
@@ -109,9 +109,9 @@ $border-color-red: red;
   flex-direction: column;
   max-width: 100%;
 
-  border-left: 1px solid $border-color-red;
-  border-bottom: 1px solid $border-color-red;
-  border-right: 1px solid $border-color-red;
+  border-left: 1px solid $border-color-red !important;
+  border-bottom: 1px solid $border-color-red !important;
+  border-right: 1px solid $border-color-red !important;
   border-radius: 5px;
   margin: 1em;
 
@@ -126,7 +126,7 @@ $border-color-red: red;
     width: 100% !important;
 
     .headerBorderBeforeRed {
-      border-top: 1px solid $border-color-red;
+      border-top: 1px solid $border-color-red !important;
       width: 1em;
       border-top-left-radius: 5px;
     }
@@ -147,7 +147,7 @@ $border-color-red: red;
     }
 
     .headerBorderAfterRed {
-      border-top: 1px solid $border-color-red;
+      border-top: 1px solid $border-color-red !important;
       width: 1em;
       flex-grow: 2;
       border-top-right-radius: 5px;

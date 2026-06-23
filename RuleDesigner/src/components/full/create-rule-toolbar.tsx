@@ -164,6 +164,7 @@ export default function CreateRuleToolbar({
         <SchemaSelect
           schemas={schemas}
           schemaId={schemaId}
+          label="Select a Schema"
           handleSchemaSelect={handleSchemaSelect}
         />
         <LogicSelect

@@ -98,7 +98,7 @@ export default function RuleList({
     operatorName: Operator,
     isValid: boolean,
     uuid: string,
-  ) => {
+  ): any => {
     createdExpanded.push(true);
 
     const isExpanded =

@@ -135,7 +135,7 @@ export default function Freddy() {
       setDog({
         name: "Freddy",
         state: "sleeping",
-        image: "/public/assets/dog_sleeping.png",
+        image: "/assets/dog_sleeping.png",
         hunger: 0,
       });
     }

@@ -42,7 +42,7 @@ export default function SimpleRuleList({
     path: string,
     ruleLevel: number,
     operatorName: Operator,
-  ) => {
+  ): any => {
     const subOperators: {
       operators: object[];
       path: string;
@@ -56,6 +56,7 @@ export default function SimpleRuleList({
           p: 0,
           m: 0,
           height: "fit-content",
+          width: "fit-content",
         }}
       >
         <ListItemIcon sx={{ pl: ruleLevel }}>
@@ -74,15 +75,15 @@ export default function SimpleRuleList({
           } else if (typeof operators[1] !== "undefined") {
             secondary =
               secondary +
-              `: ${operators[1].toString().length > 10 ? operators[1].toString().substring(0, 10) + "..." : operators[1]}`;
+              `: ${operators[1].toString().length > 30 ? operators[1].toString().substring(0, 30) + "..." : operators[1]}`;
           }
           elements.push(
             <ListItem
               key={createUUID()}
               disablePadding
               sx={{
+                height: "fit-content",
                 width: "fit-content",
-                height: "fin-content",
                 p: -1,
                 mt: -1,
               }}
@@ -91,7 +92,7 @@ export default function SimpleRuleList({
                 key={createUUID()}
                 primary={operatorName}
                 secondary={secondary}
-                sx={{ minWidth: 100, pl: ruleLevel }}
+                sx={{ pl: ruleLevel }}
               />
             </ListItem>,
           );

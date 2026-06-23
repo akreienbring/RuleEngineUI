@@ -8,6 +8,7 @@ import type {
   ArchivedRule,
   Addon,
   InputSchema,
+  CustomLabels,
 } from "@src/components/types/public";
 import { RuleExpression } from "rule-engine-js";
 import {
@@ -43,6 +44,7 @@ interface SimpleRuleProps {
   schemas: InputSchema[];
   isSaveRule: boolean;
   addons?: Addon[];
+  customLabels?: CustomLabels;
   handleSaveRule: (createdRule: ArchivedRule) => void;
   handleUpdateRule: (rule: ArchivedRule) => void;
   archivedRule?: ArchivedRule;
@@ -56,6 +58,7 @@ interface SimpleRuleProps {
  * @param {InputSchema[]} props.schemas - Different JSON schemas for selecting properties
  * @param {boolean} props.isSaveRule - If true, the final rule can be saved with name and descriptiion
  * @param {Addon[]} [props.addons] - A list of custom accordions, that will be added to the standard ones.
+ * @param {ojbect} [props.customLabels] - An object with custom labels for the accordion summaries.
  * @param {Function} props.handleSaveRule - Calls the function to save the rule and add it to a list of "archived" rules
  * @param {Function} props.handleUpdateRule - Calls the function to update the rule in the list of "archived" rules
  * @param {ArchivedRule} [props.archivedRule] - If given, the user wants to edit an existing rule
@@ -67,6 +70,7 @@ export default function SimpleRule({
   schemas,
   isSaveRule,
   addons,
+  customLabels,
   handleSaveRule,
   handleUpdateRule,
   archivedRule,
@@ -284,7 +288,7 @@ export default function SimpleRule({
 
   if (isSaveRule) {
     accordions.push({
-      summary: "Add Name and Description",
+      summary: customLabels?.addNameDescription || "Add Name and Description",
       selected: "",
       details: (
         <Stack>
@@ -296,7 +300,7 @@ export default function SimpleRule({
             size="small"
             id="name"
             name="name"
-            label="Name"
+            label={customLabels?.nameLabel || "Name"}
             fullWidth
             variant="filled"
           />
@@ -308,7 +312,7 @@ export default function SimpleRule({
             size="small"
             id="description"
             name="description"
-            label="Description"
+            label={customLabels?.descriptionLabel || "Description"}
             fullWidth
             variant="filled"
           />
@@ -326,19 +330,23 @@ export default function SimpleRule({
     >
       <DialogTitle>
         {typeof archivedRule !== "undefined"
-          ? `Edit Rule: ${archivedRule.name}`
-          : "Create Rule"}
+          ? customLabels?.dialogTitleUpdate + `: ${archivedRule.name}` ||
+            `Edit Rule: ${archivedRule.name}`
+          : customLabels?.dialogTitleNew || "Create Rule"}
       </DialogTitle>
       <DialogContent>
         <Accordion defaultExpanded>
           <AccordionSummary>
-            <Typography component="span">What is the Trigger?</Typography>
+            <Typography>
+              {customLabels?.trigger || "What is the Trigger?"}
+            </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <Stack spacing={2}>
               <SchemaSelect
                 schemas={schemas}
                 schemaId={schemaId}
+                label={customLabels?.selectSchema || "Select a Schema?"}
                 handleSchemaSelect={handleSchemaSelect}
               />
               <PropertyList
@@ -357,13 +365,22 @@ export default function SimpleRule({
               direction="row"
               sx={{ width: 1, justifyContent: "space-between" }}
             >
-              <Typography>All, One or None?</Typography>
+              <Typography>
+                {customLabels?.selectLogic || "All, One or None?"}
+              </Typography>
+
               <Typography>
                 {topOperator === "and"
-                  ? "All"
+                  ? customLabels?.logicValues[0]
+                    ? customLabels.logicValues[0]
+                    : "All"
                   : topOperator === "or"
-                    ? "One"
-                    : "None"}
+                    ? customLabels?.logicValues[1]
+                      ? customLabels.logicValues[1]
+                      : "One"
+                    : customLabels?.logicValues[2]
+                      ? customLabels.logicValues[2]
+                      : "None"}
               </Typography>
             </Stack>
           </AccordionSummary>
@@ -413,8 +430,8 @@ export default function SimpleRule({
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography component="span">
               {typeof archivedRule !== "undefined"
-                ? "Update the Rule"
-                : "Save the Rule"}
+                ? customLabels?.updateRule || "Update the Rule"
+                : customLabels?.saveRule || "Save the Rule"}
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -429,8 +446,9 @@ export default function SimpleRule({
               }}
             >
               {typeof archivedRule !== "undefined"
-                ? "to save your changes"
-                : "By saving the rule it will be available for further usage"}
+                ? customLabels?.updateInfo || "to save your changes"
+                : customLabels?.saveInfo ||
+                  "By saving the rule it will be available for further usage"}
             </Typography>
           </AccordionDetails>
           <AccordionActions>
@@ -443,7 +461,7 @@ export default function SimpleRule({
                 }
                 onClick={() => handleUpdate(archivedRule.ruleid)}
               >
-                Update
+                {customLabels?.updateButton || "Update"}
               </Button>
             ) : (
               <Button
@@ -454,7 +472,7 @@ export default function SimpleRule({
                 }
                 onClick={handleSave}
               >
-                Save
+                {customLabels?.saveButton || "Save"}
               </Button>
             )}
           </AccordionActions>
@@ -462,7 +480,7 @@ export default function SimpleRule({
       </DialogContent>
       <DialogActions>
         <Button variant="contained" onClick={onClose}>
-          Cancel
+          {customLabels?.cancelButton || "Cancel"}
         </Button>
       </DialogActions>
     </Dialog>

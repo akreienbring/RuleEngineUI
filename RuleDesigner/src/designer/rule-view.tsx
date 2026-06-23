@@ -6,6 +6,8 @@ import type {
   ArchivedRule,
   Addon,
   InputSchema,
+  CustomLabels,
+  TestObject,
 } from "@src/components/types/public";
 import RuleEngineJSUI from "@src/components/rule-engine-js-ui";
 import {
@@ -29,8 +31,29 @@ import { applyRuleFilter } from "./rule-table-utils";
 import { emptyRows, getComparator } from "@src/utils/sort-array";
 import TestDialog from "./test-dialog";
 
+/*
+  Example for i18n
+  Custom Labels can be used to internatiolize the Simple UI
+*/
+const customLabels: CustomLabels = {
+  trigger: "Was ist der Auslöser?",
+  selectSchema: "Wähle ein Schema",
+  selectLogic: "Alle, Einen oder Keinen?",
+  logicValues: ["Alle", "Einen", "Keinen"],
+  addNameDescription: "Füge Name und Beschreibung hinzu",
+  nameLabel: "Name",
+  descriptionLabel: "Beschreibung",
+  saveRule: "Speichern",
+  updateRule: "Aktualisieren",
+  saveInfo: "Speicher die Regel",
+  updateInfo: "Aktualisier die Regel",
+  saveButton: "Speichern",
+  updateButton: "Aktualisieren",
+  cancelButton: "Abbrechen",
+};
+
 interface RuleViewProps {
-  testObj: object;
+  testObjects?: TestObject[];
   schemas: InputSchema[];
   addons: Addon[];
   archivedRules: SCentralRule[];
@@ -42,7 +65,7 @@ interface RuleViewProps {
 /**
  * Offers function to create, save end edit rules used for automation
  * @param {RuleViewProps} props
- * @param {object} props.testObj - An object, used to be evaluated with a given rule
+ * @param {object} props.testObjects - A created rule will be tested against one of these objects
  * @param {InputSchema[]} props.schemas - A list of schemas used for the creation of rules
  * @param {Addon[]} props.addons - A list of addons (customizations) that can be added to the create rule dialog.
  * @param {SCentralRule[]} props.archivedRules - A list of already existing rules to show in a table
@@ -51,7 +74,7 @@ interface RuleViewProps {
  * @param {Function} props.handleUpdateRule - Called when a rule must be updated
  * @returns {JSX.Element} */
 export default function RuleView({
-  testObj,
+  testObjects,
   schemas,
   addons,
   archivedRules,
@@ -304,6 +327,7 @@ export default function RuleView({
         schemas={schemas}
         isSaveRule={true}
         addons={addons}
+        customLabels={customLabels}
         handleSaveRule={handleSaveRule}
         handleUpdateRule={handleUpdateRule}
         archivedRule={isOpenRule.rule}
@@ -311,9 +335,9 @@ export default function RuleView({
       {archivedRules.length > 0 && typeof isOpenTest.rule !== "undefined" && (
         <TestDialog
           isOpenTest={isOpenTest.open}
-          rule={isOpenTest.rule}
+          sCentalRule={isOpenTest.rule}
           schemaName={schemas[isOpenTest.rule.schemaId].name}
-          testObj={testObj}
+          testObjects={testObjects}
           onCloseTest={onCloseTest}
         />
       )}

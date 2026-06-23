@@ -9,6 +9,7 @@ import { createUUID } from "@src/components/utils/general";
 interface SchemaSelectProps {
   schemas: InputSchema[];
   schemaId: number;
+  label: string;
   handleSchemaSelect: (schemaId: number) => void;
 }
 /**
@@ -16,16 +17,18 @@ interface SchemaSelectProps {
  * @param {SchemaSelectProps} props
  * @param {number} props.schemaId - The id of the currently selected JSON schema
  * @param {InputSchema[]} props.schemas - Different JSON schemas for selecting properties
+ * @param {string} props.label - The label of the schema select
  * @returns
  */
 export default function SchemaSelect({
   schemas,
   schemaId,
+  label,
   handleSchemaSelect,
 }: SchemaSelectProps): JSX.Element {
   return (
     <TextField
-      label="Select a Schema"
+      label={label}
       onChange={(event) => handleSchemaSelect(Number(event.target.value))}
       size="small"
       select

@@ -159,7 +159,7 @@ const schemas: InputSchema[] = [
 const testObjects: TestObject[] = [
   { name: "Freddy", testObject: freddy },
   { name: "NotifyStatus", testObject: notifyStatus },
-  { name: "SourceObj", testObject: nestedObj },
+  { name: "NestedObj", testObject: nestedObj },
 ];
 //----------------
 
@@ -314,7 +314,7 @@ export default function RuleDesigner(): JSX.Element {
       </Tabs>
       {currentTabIndex === 0 && (
         <RuleView
-          testObj={notifyStatus}
+          testObjects={testObjects}
           schemas={schemas}
           addons={addons}
           archivedRules={archivedRules}

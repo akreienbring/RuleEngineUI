@@ -12,6 +12,7 @@ import type {
   Addon,
   InputSchema,
   TestObject,
+  CustomLabels,
 } from "@src/components/types/public";
 import CreateRule from "./full/create-rule";
 import SimpleRule from "./simple/simple-rule";
@@ -44,6 +45,7 @@ interface RuleEngingJSUIProps {
   archivedRules?: ArchivedRule[];
   archivedRule?: ArchivedRule;
   addons?: Addon[];
+  customLabels?: CustomLabels;
 }
 /** This is the component that provides two UI's.
  *  - A fully featured client that can be used to create complex rules (CreateRule)
@@ -63,6 +65,8 @@ interface RuleEngingJSUIProps {
  * @param {Function} props.handleUpdateRule - Calls the function to update the rule in the list of "archived" rules
  * @param {ArchivedRule} [props.archivedRule] - If given, the user wants to edit an existing rule
  * @param {Addon[]} [props.addons] - A list of addons that can be used to customize the SimpleRule Dialog
+ * @param {CustomLabels} [props.customLabels] - An object with custom labels for the accordion customLabels (Simple UI only). Allowed labels are:
+ *  trigger
  *
  * @returns {JSX.Element}
  */
@@ -78,6 +82,7 @@ export default function RuleEngineJSUI({
   archivedRules,
   archivedRule,
   addons,
+  customLabels,
 }: RuleEngingJSUIProps): JSX.Element {
   const [ruleToSave, setRuleToSave] = useState<ArchivedRule | null>(null);
   const [ruleName, setRuleName] = useState("");
@@ -202,6 +207,7 @@ export default function RuleEngineJSUI({
             schemas={schemas}
             isSaveRule={isSaveRule}
             addons={addons}
+            customLabels={customLabels}
             handleSaveRule={handleSaveRule}
             handleUpdateRule={handleUpdateRule}
             archivedRule={archivedRule}

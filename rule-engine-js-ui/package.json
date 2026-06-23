@@ -1,6 +1,6 @@
 {
   "name": "rule-engine-js-ui",
-  "version": "0.0.34",
+  "version": "0.0.41",
   "private": false,
   "description": "UI for rule-engine-js",
   "license": "MIT",
@@ -38,24 +38,24 @@
     "build": "tsc --build --clean && vite build"
   },
   "dependencies": {
-    "@mui/icons-material": "^9.1.0",
+    "@mui/icons-material": "^9.1.1",
     "react-error-boundary": "^6.1.2",
     "rule-engine-js": "^1.0.7"
   },
   "devDependencies": {
     "@emotion/styled": "^11.14.1",
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.9.2",
+    "@types/node": "^25.9.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
-    "eslint": "^10.4.1",
+    "eslint": "^10.5.0",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "eslint-plugin-react-refresh": "^0.5.2",
+    "eslint-plugin-react-refresh": "^0.5.3",
     "globals": "^17.6.0",
     "sass-embedded": "^1.100.0",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.61.0",
+    "typescript-eslint": "^8.61.1",
     "unplugin-dts": "^1.0.2",
     "vite": "^8.0.16"
   },

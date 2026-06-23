@@ -71,3 +71,41 @@ export type JSONSchema = {
   properties: { [key: string]: JSONProperty };
   required: string[];
 };
+
+/**
+ * Cumstom labels can be used for i18n. If not provided a english fallback is used.
+ * @property {string} dialogTitleNew - Used as title when a new rule is created
+ * @property {string} dialogTitleUpdate - Used as title when a rule is edited
+ * @property {string} trigger - Text for the trigger selection
+ * @property {string} selectSchema - Text for the schema selection
+ * @property {string} selectLogig - Text for for the selection of a top logig (and, or, not)
+ * @property {string} logivValues - Used to indicate which logic is currently selected
+ * @property {string} addNameDescription - Text to add name and description to a rule definition
+ * @property {string} nameLabel - Label of the input field for the name
+ * @property {string} descriptionLabel - Label of the input field for the description
+ * @property {string} saveRule - Summary text for the last accordion when a new rule is created
+ * @property {string} updateRule - Summary text for the last accordion when a rule is updated
+ * @property {string} updateInfo - Detail text the last accordion when a new rule is created
+ * @property {string} updateInfo - Detail text the last accordion when a rule is updated
+ * @property {string} saveButton - Text for the save button
+ * @property {string} updateButton- Text for the update Button
+ * @property {string} cancelButton - Text for the cancel Button
+ */
+export interface CustomLabels {
+  dialogTitleNew?: string;
+  dialogTitleUpdate?: string;
+  trigger?: string;
+  selectSchema?: string;
+  selectLogic?: string;
+  logicValues?: [string, string, string];
+  addNameDescription?: string;
+  nameLabel?: string;
+  descriptionLabel?: string;
+  saveRule?: string;
+  updateRule?: string;
+  saveInfo?: string;
+  updateInfo?: string;
+  saveButton?: string;
+  updateButton?: string;
+  cancelButton?: string;
+}

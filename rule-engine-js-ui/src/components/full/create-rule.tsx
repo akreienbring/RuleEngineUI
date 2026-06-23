@@ -19,11 +19,13 @@ import RuleList from "./rule-list";
 import PropertyList from "../general/property-list";
 import CreateRuleToolbar from "./create-rule-toolbar";
 import { createUUID } from "@src/components/utils/general";
-import { buildRule } from "@src/components/utils/rule-utils-js";
+import {
+  buildRule,
+  hasStateOperator,
+} from "@src/components/utils/rule-utils-js";
 import ObjectList from "./object-list";
 import BorderBox from "./border-box";
 import {
-  hasStateOperator,
   findSubrule,
   validateRule,
   transformRule,
@@ -104,7 +106,7 @@ export default function CreateRule({
    * @param {Operator} operator - The operator of the top rule
    * @param {RuleExpression} rule - The top rule
    * @param {number} tObjId - The id of the test object
-   * @param {PropertyBuffer} newProperties - If given, uses this properties instaed the state properties (If a rule was loaded)
+   * @param {PropertyBuffer} [newProperties] - If given, uses this properties instead the state properties (If a rule was loaded)
    */
   const checkTopRule = (
     operator: Operator,
@@ -126,17 +128,16 @@ export default function CreateRule({
         : createFirstEval(properties);
       console.log(JSON.stringify(firstEval));
 
-      validateRule(operator, firstEval, rule, true).then((testResult) => {
-        console.log(`First eval: ${JSON.stringify(testResult)}`);
-        validateRule(operator, testObjects[tObjId].testObject, rule).then(
-          (testResult) => {
-            console.log(`Second eval: ${JSON.stringify(testResult)}`);
-            setIsTestValid(testResult.success);
-          },
-        );
+      validateRule(
+        rule,
+        operator,
+        testObjects[tObjId].testObject,
+        firstEval,
+      ).then((testResult) => {
+        setIsTestValid(testResult.success);
       });
     } else {
-      validateRule(operator, testObjects[tObjId].testObject, rule, false).then(
+      validateRule(rule, operator, testObjects[tObjId].testObject).then(
         (testResult) => {
           setIsTestValid(testResult.success);
         },
@@ -301,9 +302,9 @@ export default function CreateRule({
 
       subrule.rule = newSubRule;
       validateRule(
+        newSubRule,
         subrule.operator,
         testObjects[testObjectId].testObject,
-        newSubRule,
       ).then((testResult) => {
         subrule.isValid = testResult.success;
       });
@@ -479,9 +480,9 @@ export default function CreateRule({
       setTopRule(newTopRule);
 
       validateRule(
+        subrule.rule,
         subrule.operator,
         testObjects[testObjectId].testObject,
-        subrule.rule,
       ).then((testResult) => {
         subrule.isValid = testResult.success;
       });
@@ -527,14 +528,13 @@ export default function CreateRule({
         handleLoadRule={handleLoadRule}
       />
       <Stack direction="row" spacing={1}>
-        <Box
+        <BorderBox
+          title="Schema Properties"
           sx={{
-            border: "1px solid grey",
-            height: 600,
-            minWidth: 900,
+            height: 700,
+            minWidth: 950,
             overflow: "auto",
             p: 2,
-            borderRadius: 1,
           }}
         >
           <PropertyList
@@ -543,70 +543,56 @@ export default function CreateRule({
             properties={properties}
             updateProperties={updateProperties}
           />
-        </Box>
+        </BorderBox>
         <BorderBox
           title={isStatefulRule ? "Stateful Rule" : "Rule"}
-          sx={{ pl: 2 }}
+          sx={{ pl: 2, height: 700, width: "fit-content", overflow: "auto" }}
         >
-          <Box
-            sx={{
-              width: "fit-content",
-              overflow: "auto",
-            }}
-          >
-            {isShowRuleText ? (
-              <TextField
-                variant="standard"
-                multiline
-                name="topRule"
-                value={JSON.stringify(
-                  transformRule(topOperator, topRule),
-                  undefined,
-                  2,
-                )}
-                sx={{ mb: 2, p: 1 }}
-                slotProps={{
-                  input: {
-                    disableUnderline: true,
-                  },
-                }}
+          {isShowRuleText ? (
+            <TextField
+              variant="standard"
+              multiline
+              name="topRule"
+              value={JSON.stringify(
+                transformRule(topOperator, topRule),
+                undefined,
+                2,
+              )}
+              sx={{ mb: 2, p: 1 }}
+              slotProps={{
+                input: {
+                  disableUnderline: true,
+                },
+              }}
+            />
+          ) : (
+            <List dense disablePadding sx={{ p: 1 }}>
+              <RuleList
+                key={createUUID()}
+                topRule={topRule}
+                topOperator={topOperator}
+                selectedRule={selectedRule}
+                isTestValid={isTestValid}
+                uuid={""}
+                archivedRules={archivedRules}
+                schemas={schemas}
+                schemaId={schemaId}
+                schemaName={schemas[schemaId].name}
+                handleSelectedRuleChange={handleSelectedRuleChange}
+                handleAddRule={handleAddRule}
+                handleDeleteRule={handleDeleteRule}
               />
-            ) : (
-              <List dense disablePadding sx={{ p: 1 }}>
-                <RuleList
-                  key={createUUID()}
-                  topRule={topRule}
-                  topOperator={topOperator}
-                  selectedRule={selectedRule}
-                  isTestValid={isTestValid}
-                  uuid={""}
-                  archivedRules={archivedRules}
-                  schemas={schemas}
-                  schemaId={schemaId}
-                  schemaName={schemas[schemaId].name}
-                  handleSelectedRuleChange={handleSelectedRuleChange}
-                  handleAddRule={handleAddRule}
-                  handleDeleteRule={handleDeleteRule}
-                />
-              </List>
-            )}
-          </Box>
+            </List>
+          )}
         </BorderBox>
 
         <BorderBox
           icon={isTestValid ? VerifiedRounded : DoNotDisturbOnRounded}
           title={testObjects[testObjectId].name}
           isValid={isTestValid}
-          sx={{ pl: 3 }}
+          sx={{ height: 700, pl: 3, miWidth: 160, overflow: "auto" }}
         >
-          <Box
-            sx={{
-              width: "fit-content",
-              overflow: "auto",
-            }}
-          >
-            <ObjectList obj={testObjects[testObjectId].testObject} />
-          </Box>
+          <ObjectList obj={testObjects[testObjectId].testObject} />
         </BorderBox>
       </Stack>
     </Box>
