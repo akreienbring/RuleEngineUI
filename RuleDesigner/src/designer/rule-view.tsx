@@ -30,12 +30,15 @@ import RuleTableToolbar from "./rule-table-toolbar";
 import { applyRuleFilter } from "./rule-table-utils";
 import { emptyRows, getComparator } from "@src/utils/sort-array";
 import TestDialog from "./test-dialog";
+import { findSchemaById } from "@src/components/utils/property-utils";
 
 /*
   Example for i18n
-  Custom Labels can be used to internatiolize the Simple UI
+  Custom Labels can be used to internatialize the Simple UI
 */
 const customLabels: CustomLabels = {
+  dialogTitleNew: "Neue Regel",
+  dialogTitleUpdate: "Bearbeiten",
   trigger: "Was ist der Auslöser?",
   selectSchema: "Wähle ein Schema",
   selectLogic: "Alle, Einen oder Keinen?",
@@ -46,7 +49,7 @@ const customLabels: CustomLabels = {
   saveRule: "Speichern",
   updateRule: "Aktualisieren",
   saveInfo: "Speicher die Regel",
-  updateInfo: "Aktualisier die Regel",
+  updateInfo: "Aktualisiere die Regel",
   saveButton: "Speichern",
   updateButton: "Aktualisieren",
   cancelButton: "Abbrechen",
@@ -284,18 +287,22 @@ export default function RuleView({
             <TableBody>
               {dataFiltered
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((rule: SCentralRule) => (
-                  <RuleTableRow
-                    key={rule.ruleid}
-                    rule={rule}
-                    schemaName={schemas[rule.schemaId].name}
-                    selected={selected.indexOf(rule.name) !== -1}
-                    handleClick={() => handleClick(rule.name)}
-                    handleDeleteRule={handleDeleteRule}
-                    handleOpenRule={handleOpenRule}
-                    handleTestRule={handleTestRule}
-                  />
-                ))}
+                .map((rule: SCentralRule) => {
+                  const ruleSchema = findSchemaById(schemas, rule.schemaId);
+
+                  return (
+                    <RuleTableRow
+                      key={rule.ruleid}
+                      rule={rule}
+                      schemaName={ruleSchema.name}
+                      selected={selected.indexOf(rule.name) !== -1}
+                      handleClick={() => handleClick(rule.name)}
+                      handleDeleteRule={handleDeleteRule}
+                      handleOpenRule={handleOpenRule}
+                      handleTestRule={handleTestRule}
+                    />
+                  );
+                })}
 
               <TableEmptyRows
                 height={77}
@@ -336,7 +343,6 @@ export default function RuleView({
         <TestDialog
           isOpenTest={isOpenTest.open}
           sCentalRule={isOpenTest.rule}
-          schemaName={schemas[isOpenTest.rule.schemaId].name}
           testObjects={testObjects}
           onCloseTest={onCloseTest}
         />

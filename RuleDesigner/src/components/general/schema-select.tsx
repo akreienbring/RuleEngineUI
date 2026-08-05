@@ -36,7 +36,7 @@ export default function SchemaSelect({
       sx={{ width: 200, zIndex: "tooltip" }}
     >
       {schemas.map((schema, index) => (
-        <MenuItem key={createUUID()} value={index}>
+        <MenuItem key={createUUID()} value={schema.schemaId}>
           {schema.name}
         </MenuItem>
       ))}

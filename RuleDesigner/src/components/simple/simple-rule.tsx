@@ -33,8 +33,12 @@ import SimpleRuleList from "./simple-rule-list";
 import {
   createProperties,
   createFirstEval,
+  findSchemaById,
 } from "@src/components/utils/property-utils";
-import { buildRule } from "@src/components/utils/rule-utils-js";
+import {
+  buildRule,
+  hasStateOperator,
+} from "@src/components/utils/rule-utils-js";
 import { restoreSubrules } from "@src/components/utils/rule-utils-ts";
 import { useValidation } from "@src/components/general/use-validation";
 
@@ -76,13 +80,15 @@ export default function SimpleRule({
   archivedRule,
 }: SimpleRuleProps): JSX.Element {
   const { validateProperties } = useValidation();
-  const [schemaId, setSchemaId] = useState(
-    typeof archivedRule !== "undefined" ? archivedRule.schemaId : 0,
+  const [schema, setSchema] = useState(
+    typeof archivedRule !== "undefined"
+      ? findSchemaById(schemas, archivedRule.schemaId)
+      : schemas[0],
   );
   const [properties, setProperties] = useState<PropertyBuffer>(
     typeof archivedRule !== "undefined"
-      ? createProperties(schemas[schemaId].schema, null, archivedRule)
-      : createProperties(schemas[schemaId].schema, null, null),
+      ? createProperties(schema.jsonSchema, null, archivedRule)
+      : createProperties(schema.jsonSchema, null, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>(
     typeof archivedRule !== "undefined"
@@ -119,8 +125,8 @@ export default function SimpleRule({
   const onOpen = () => {
     if (isOpenRule) {
       if (typeof archivedRule === "undefined") {
-        setSchemaId(0);
-        setProperties(createProperties(schemas[schemaId].schema, null, null));
+        setSchema(schemas[0]);
+        setProperties(createProperties(schemas[0].jsonSchema, null, null));
         setRuleName("");
         setRuleDescription("");
         setIsPropertiesValid(false);
@@ -130,14 +136,8 @@ export default function SimpleRule({
           and: [],
         });
       } else {
-        setSchemaId(archivedRule.schemaId);
-        setProperties(
-          createProperties(
-            schemas[archivedRule.schemaId].schema,
-            null,
-            archivedRule,
-          ),
-        );
+        setSchema(findSchemaById(schemas, archivedRule.schemaId));
+        setProperties(createProperties(schema.jsonSchema, null, archivedRule));
         setRuleName(archivedRule.name);
         setRuleDescription(archivedRule.description);
         setIsPropertiesValid(true);
@@ -160,8 +160,8 @@ export default function SimpleRule({
    * and closes the dialog.
    */
   const onClose = () => {
-    setSchemaId(0);
-    setProperties(createProperties(schemas[schemaId].schema, null, null));
+    setSchema(schemas[0]);
+    setProperties(createProperties(schemas[0].jsonSchema, null, null));
     setRuleName("");
     setRuleDescription("");
     setIsPropertiesValid(false);
@@ -200,14 +200,17 @@ export default function SimpleRule({
    */
   const handleSave = () => {
     //create the object for the first evaluation of a stateful rule
-    const firstEval = createFirstEval(properties);
+    let firstEval = {};
+    if (hasStateOperator(topRule[topOperator] as RuleExpression[])) {
+      firstEval = createFirstEval(properties);
+    }
 
-    //no need to transform the rule. The simple interface does'nt create subrules
+    //no need to transform the rule. The simple interface doesn't create subrules
     const createdRule: ArchivedRule = {
       ruleid: 0,
       name: ruleName,
       description: ruleDescription,
-      schemaId: schemaId,
+      schemaId: schema.schemaId,
       operator: topOperator,
       rule: topRule,
       firstEval,
@@ -223,13 +226,16 @@ export default function SimpleRule({
    * @param {number} ruleid - The id of the rule to update
    */
   const handleUpdate = (ruleid: number) => {
-    const firstEval = createFirstEval(properties);
+    let firstEval = {};
+    if (hasStateOperator(topRule[topOperator] as RuleExpression[])) {
+      firstEval = createFirstEval(properties);
+    }
 
     const updatedRule: ArchivedRule = {
       ruleid,
       name: ruleName,
       description: ruleDescription,
-      schemaId: schemaId,
+      schemaId: schema.schemaId,
       operator: topOperator,
       rule: topRule,
       firstEval,
@@ -243,8 +249,9 @@ export default function SimpleRule({
    * @param {number} schemaId - The new schema index.
    */
   const handleSchemaSelect = (schemaId: number) => {
-    setSchemaId(schemaId);
-    setProperties(createProperties(schemas[schemaId].schema, null, null));
+    const schema = findSchemaById(schemas, schemaId);
+    setSchema(schema);
+    setProperties(createProperties(schema.jsonSchema, null, null));
     setTopRule({
       and: [],
     });
@@ -345,7 +352,7 @@ export default function SimpleRule({
             <Stack spacing={2}>
               <SchemaSelect
                 schemas={schemas}
-                schemaId={schemaId}
+                schemaId={schema.schemaId}
                 label={customLabels?.selectSchema || "Select a Schema?"}
                 handleSchemaSelect={handleSchemaSelect}
               />

@@ -15,12 +15,12 @@ import {
   Box,
 } from "@mui/material";
 import { createUUID } from "@src/components/utils/general";
+import { findSchemaById } from "@src/components/utils/property-utils";
 
 interface RulesTableProps {
   archivedRules: ArchivedRule[];
   schemas: InputSchema[];
-  schemaId?: number;
-  schemaName?: string;
+  schema?: InputSchema;
   handleLoadArchiveRule: (archivedRule: ArchivedRule) => void;
 }
 
@@ -30,7 +30,7 @@ interface RulesTableProps {
  * @param {RulesTableProps} props
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
  * @param {InputSchema[]} props.schemas - A list of schemas
- * @param {number} [props.schemaId] - If given, indicates that the rule will be added to a parent rule as subrule.
+ * @param {InputSchema} [props.schema] - If given, indicates that the rule will be added to a parent rule as subrule.
  * @param {string} [props.schemaName] - If given, the name of the schema of the rule
  * @param {Function} props.handleLoadArchiveRule - Called when an already existing rule is added as a subrule
  * @returns
@@ -38,13 +38,14 @@ interface RulesTableProps {
 export default function RulesTable({
   archivedRules,
   schemas,
-  schemaId,
-  schemaName,
+  schema,
   handleLoadArchiveRule,
 }: RulesTableProps) {
   let validRules = archivedRules;
-  if (typeof schemaId !== "undefined") {
-    validRules = archivedRules.filter((rule) => rule.schemaId === schemaId);
+  if (typeof schema !== "undefined") {
+    validRules = archivedRules.filter(
+      (rule) => rule.schemaId === schema.schemaId,
+    );
   }
 
   return (
@@ -60,9 +61,7 @@ export default function RulesTable({
         </TableHead>
         <TableBody>
           {validRules.map((archivedRule) => {
-            const ruleSchema = schemas.find(
-              (schema) => schema.schemaId === archivedRule.schemaId,
-            );
+            const ruleSchema = findSchemaById(schemas, archivedRule.schemaId);
             return (
               <TableRow
                 key={createUUID()}
@@ -86,7 +85,7 @@ export default function RulesTable({
       {validRules.length === 0 && (
         <Box sx={{ width: 1, justifyContent: "center" }}>
           <Typography>
-            {`There is no rule ${typeof schemaId !== "undefined" ? "for the parentrule schema " + schemaName : ""}`}
+            {`There is no rule ${typeof schema.schemaId !== "undefined" ? "for the parentrule schema " + schema.name : ""}`}
           </Typography>
         </Box>
       )}

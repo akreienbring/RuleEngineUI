@@ -6,8 +6,11 @@ import {
   getStateOperators,
 } from "@src/components/utils/operator-utils";
 import { getValueByPath } from "@src/components/utils/rule-utils-js";
-import type { ArchivedRule, JSONSchema } from "@src/components/types/public";
-import { IosShareTwoTone } from "@mui/icons-material";
+import type {
+  ArchivedRule,
+  InputSchema,
+  JSONSchema,
+} from "@src/components/types/public";
 
 /**
  * JSONSchema property object can have 3 kinds of keys: const, enum, and type. If the type is not given,
@@ -65,6 +68,20 @@ const detectTypeValue = (
 };
 
 /**
+ *
+ * @param {InputSchema[]} schemas - A list of input schemas that are available for rule creation
+ * @param {number} schemaId - The id of the schema that should be found
+ * @returns {InputSchema} The schema that matches the given id or undefined if no schema was found
+ */
+export const findSchemaById = (
+  schemas: InputSchema[],
+  schemaId: number,
+): InputSchema => {
+  const schema = schemas.find((schema) => schema.schemaId === schemaId);
+  return schema;
+};
+
+/**
  * Stateful rules need an object for the first evaluation to detect changes.
  * The initial values for this object are saved in the value2 of a property with a stateful operator.
  * This function creates the object for the first evaluation of a stateful rule.
@@ -74,16 +91,20 @@ const detectTypeValue = (
 export const createFirstEval = (properties: PropertyBuffer): object => {
   const firstEval: any = {};
   Object.entries(properties).forEach(([key, property]) => {
-    const isStateOperator = getStateOperators().includes(property.operators[0]);
-    if (
-      property.operators[0] !== "between" &&
-      property.value2 !== "" &&
-      property.isChecked &&
-      isStateOperator
-    ) {
-      firstEval[key] = property.value2;
+    if (property.isChecked) {
+      const isStateOperator = getStateOperators().includes(
+        property.operators[0],
+      );
+      if (isStateOperator) {
+        firstEval[key] = property.value2;
+      } else {
+        firstEval[key] = property.value1;
+      }
     }
   });
+  console.log(
+    `Created object for first evaluation of stateful rule: ${JSON.stringify(firstEval)}`,
+  );
 
   return firstEval;
 };

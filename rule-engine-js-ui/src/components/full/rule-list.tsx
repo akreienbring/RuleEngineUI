@@ -19,8 +19,7 @@ interface RuleListProps {
   uuid: string;
   archivedRules: ArchivedRule[];
   schemas: InputSchema[];
-  schemaId: number;
-  schemaName: string;
+  schema: InputSchema;
   handleSelectedRuleChange: (selectedRule: RuleIndex) => void;
   handleAddRule: (
     operator: Operator,
@@ -40,8 +39,7 @@ interface RuleListProps {
  * @param {string} props.uuid - Used to identify a rule (and, or, not) in the list
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
  * @param {InputSchema[]} props.schemas - A list of schemas.
- * @param {number} props.schemaId - The id of the currently selected schema
- * @param {string} [props.schemaName] - If given, the name of the schema of the rule
+ * @param {InputSchema} props.schema - The currently selected schema
  * @param {Function} props.handleSelectedRuleChange - Called when the user clicks on a rule in the list to make it the currently selected rule
  * @param {Function} props.handleAddRule - Used to add a subrule to an existing rule
  * @param {Function} props.handleDeleteRule - Used to delete a subrule from an existing rule
@@ -55,8 +53,7 @@ export default function RuleList({
   uuid,
   archivedRules,
   schemas,
-  schemaId,
-  schemaName,
+  schema,
   handleSelectedRuleChange,
   handleAddRule,
   handleDeleteRule,
@@ -139,8 +136,7 @@ export default function RuleList({
           operatorName={operatorName}
           archivedRules={archivedRules}
           schemas={schemas}
-          schemaId={schemaId}
-          schemaName={schemaName}
+          schema={schema}
           handleSelectedRuleChange={handleSelectedRuleChange}
           handleAddRule={handleAddRule}
           handleDeleteRule={handleDeleteRule}

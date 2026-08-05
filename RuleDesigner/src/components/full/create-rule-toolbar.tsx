@@ -21,28 +21,9 @@ import {
   RuleFolderRounded,
 } from "@mui/icons-material";
 
-const currencies = [
-  {
-    value: "USD",
-    label: "$",
-  },
-  {
-    value: "EUR",
-    label: "€",
-  },
-  {
-    value: "BTC",
-    label: "฿",
-  },
-  {
-    value: "JPY",
-    label: "¥",
-  },
-];
-
 interface CreateRuleToolbarProps {
   schemas: InputSchema[];
-  schemaId: number;
+  schema: InputSchema;
   testObjects: TestObject[];
   testObjectId: number;
   operator: Operator;
@@ -64,7 +45,7 @@ interface CreateRuleToolbarProps {
  * Implements the possible actions for the manipulation of the top rule (e.g. save, reset, select schema...)
  * @param {CreateRuleToolbarProps} props
  * @param {InputSchema[]} props.schemas - A list of JSON schemas used to build a list of properties for a rule
- * @param {number} props.schemaId - The id of the currently selected JSON schema
+ * @param {InputSchema} props.schema - The currently selected JSON schema
  * @param {InputSchema[]} props.testObjects - A list of Test Objects
  * @param {number} props.testObjectId - The id of the currently selected Test Object
  * @param {Operator} props.operator - The operator (and, or, not) of the selected rule
@@ -80,7 +61,7 @@ interface CreateRuleToolbarProps {
  */
 export default function CreateRuleToolbar({
   schemas,
-  schemaId,
+  schema,
   testObjects,
   testObjectId,
   operator,
@@ -163,7 +144,7 @@ export default function CreateRuleToolbar({
 
         <SchemaSelect
           schemas={schemas}
-          schemaId={schemaId}
+          schemaId={schema.schemaId}
           label="Select a Schema"
           handleSchemaSelect={handleSchemaSelect}
         />
@@ -171,7 +152,7 @@ export default function CreateRuleToolbar({
           operator={operator}
           handleRuleOperatorChange={handleRuleOperatorChange}
         />
-        <Tooltip title={`Reset ${schemas[schemaId].name}`}>
+        <Tooltip title={`Reset ${schema.name}`}>
           <IconButton
             onClick={handleResetAll}
             sx={{ p: 0, m: 0, height: "fit-content" }}

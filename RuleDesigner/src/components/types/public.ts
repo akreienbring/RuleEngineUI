@@ -16,13 +16,13 @@ export type TestObject = {
  * InputSchema defines the properties that are available when creating a rule. It uses JSONSchema to do so.
  * @property {string} name - The name of the input schema
  * @property {string} description - A description of the input schema
- * @property {JSONSchema} schema -  The JSONSchema that finally dertermines the available properties and their types.
+ * @property {JSONSchema} jsonSchema -  The JSONSchema that finally dertermines the available properties and their types.
  * @property {number} schemaId - A unique id of the input schema
  */
 export type InputSchema = {
   name: string;
   description: string;
-  schema: JSONSchema;
+  jsonSchema: JSONSchema;
   schemaId: number;
 };
 

@@ -139,19 +139,19 @@ const schemas: InputSchema[] = [
   {
     name: "Freddy",
     description: "dogSchema",
-    schema: freddySchema,
+    jsonSchema: freddySchema,
     schemaId: 3,
   },
   {
     name: "NotifyStatus",
     description: "NotifyStatus",
-    schema: NotifyStatusSchema,
+    jsonSchema: NotifyStatusSchema,
     schemaId: 1,
   },
   {
     name: "NestedObj",
     description: "Old",
-    schema: nestedObjSchema,
+    jsonSchema: nestedObjSchema,
     schemaId: 2,
   },
 ];

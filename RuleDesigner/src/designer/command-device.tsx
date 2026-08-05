@@ -4,6 +4,7 @@
 import { type JSX } from "react";
 import { TextField, MenuItem, Stack, IconButton, Tooltip } from "@mui/material";
 import { AddRounded, ClearRounded } from "@mui/icons-material";
+import { createUUID } from "@src/components/utils/general";
 
 interface CommandDeviceProps {
   commands: string[];
@@ -41,9 +42,9 @@ export default function CommandDevice({
    * @param {string} id - the id of a devices
    * @returns {boolean} true if the devices was already selected, false otherwise.
    */
-  const isSelected = (id: string): boolean => {
+  const isSelected = (value: string): boolean => {
     const index = commandsDevices.findIndex(
-      (commandDevice) => commandDevice.device.value === id,
+      (commandDevice) => commandDevice.device.value === value,
     );
     return index !== -1;
   };
@@ -69,7 +70,9 @@ export default function CommandDevice({
             sx={{ width: 130 }}
           >
             {commands.map((command) => (
-              <MenuItem value={command}>{command}</MenuItem>
+              <MenuItem key={createUUID()} value={command}>
+                {command}
+              </MenuItem>
             ))}
           </TextField>
 
@@ -86,16 +89,17 @@ export default function CommandDevice({
           >
             {devices.map((device) => (
               <MenuItem
-                disabled={isSelected(device.id)}
+                key={createUUID()}
+                disabled={isSelected(device.value)}
                 value={
                   entry.device.value === device.value
                     ? entry.device.value
                     : device.value
                 }
               >
-                {entry.device.value === device.id
+                {entry.device.value === device.value
                   ? entry.device.name
-                  : device.cname}
+                  : device.name}
               </MenuItem>
             ))}
           </TextField>

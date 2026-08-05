@@ -36,6 +36,7 @@ import { DoNotDisturbOnRounded, VerifiedRounded } from "@mui/icons-material";
 import {
   createProperties,
   createFirstEval,
+  findSchemaById,
 } from "@src/components/utils/property-utils";
 import { useValidation } from "@src/components/general/use-validation";
 
@@ -47,7 +48,7 @@ interface CreateRuleProps {
   prepareSaveRule: (
     rule: RuleExpression,
     operator: Operator,
-    schmemaIndex: number,
+    schemaId: number,
     firstEval: object,
   ) => void;
 }
@@ -56,12 +57,10 @@ interface CreateRuleProps {
  * Presents all utilities to create a rule useable with the JSON rule engine.
  * @param {CreateRuleProps} props
  * @param {InputSchema[]} props.schemas - A list of JSON schemas to build a rule for. Schemas must be provided by the user of the rule designer
- * @param {schemaId} props.schemaId - The id of the currently selected schema
  * @param {object} props.testObjects - A created rule will be tested against one of these objects
  * @param {number} [props.maxLevel] - If provided, the JSON schema is only analized up to the given depht
  * @param {ArchiveRule[]} props.archivedRules - A list of already exiting rules to select from when adding a new rule
- * @param {Function} props.handleSchemaSelect - Called when a different schema must be selected
- * @param {Function} props.handleSaveRule - Hand over the created rule to the application that is using this component
+ * @param {Function} props.prepareSaveRule - Hand over the created rule to the application that is using this component
  * @returns {JSX.Element} The UI used to creat a rule for a certain JSON schema
  */
 export default function CreateRule({
@@ -72,9 +71,9 @@ export default function CreateRule({
   prepareSaveRule,
 }: CreateRuleProps): JSX.Element {
   const { validateProperties } = useValidation();
-  const [schemaId, setSchemaId] = useState(0);
+  const [schema, setSchema] = useState(schemas[0]);
   const [properties, setProperties] = useState<PropertyBuffer>(
-    createProperties(schemas[schemaId].schema, testObjects[0].testObject, null),
+    createProperties(schemas[0].jsonSchema, testObjects[0].testObject, null),
   );
   const [topRule, setTopRule] = useState<RuleExpression>({
     and: [],
@@ -114,7 +113,7 @@ export default function CreateRule({
     tObjId: number,
     newProperties?: PropertyBuffer,
   ) => {
-    const isStatefulRule = hasStateOperator(rule[operator] as object[]);
+    const isStatefulRule = hasStateOperator(rule[operator] as RuleExpression[]);
     setIsStatefulRule(isStatefulRule);
 
     if (isStatefulRule) {
@@ -126,7 +125,6 @@ export default function CreateRule({
       const firstEval = newProperties
         ? createFirstEval(newProperties)
         : createFirstEval(properties);
-      console.log(JSON.stringify(firstEval));
 
       validateRule(
         rule,
@@ -153,7 +151,7 @@ export default function CreateRule({
   const handleTestObjectSelect = (tObjId: number) => {
     setTestObjectId(tObjId);
     const newProperties = createProperties(
-      schemas[schemaId].schema,
+      schema.jsonSchema,
       testObjects[tObjId].testObject,
       null,
     );
@@ -171,9 +169,10 @@ export default function CreateRule({
    * @param {number} schemaId - The id of the newly selected schema
    */
   const handleSchemaSelect = (schemaId: number) => {
-    setSchemaId(schemaId);
+    const newSchema = findSchemaById(schemas, schemaId);
+    setSchema(newSchema);
     const newProperties = createProperties(
-      schemas[schemaId].schema,
+      newSchema.jsonSchema,
       testObjects[testObjectId].testObject,
       null,
     );
@@ -204,7 +203,7 @@ export default function CreateRule({
     prepareSaveRule(
       transformRule(topOperator, topRule),
       topOperator,
-      schemaId,
+      schema.schemaId,
       firstEval,
     );
   };
@@ -218,13 +217,14 @@ export default function CreateRule({
     setSelectedRule({ uuid: "", operator: archivedRule.operator });
     setTopOperator(archivedRule.operator);
     setTopRule(archivedRule.rule);
+    const newSchema = findSchemaById(schemas, archivedRule.schemaId);
     const newProperties = createProperties(
-      schemas[archivedRule.schemaId].schema,
+      newSchema.jsonSchema,
       null,
       archivedRule,
     );
     setProperties(newProperties);
-    setSchemaId(archivedRule.schemaId);
+    setSchema(newSchema);
 
     checkTopRule(
       archivedRule.operator,
@@ -513,7 +513,7 @@ export default function CreateRule({
     <Box sx={{ width: "fit-content" }}>
       <CreateRuleToolbar
         schemas={schemas}
-        schemaId={schemaId}
+        schema={schema}
         testObjects={testObjects}
         testObjectId={testObjectId}
         operator={selectedRule.operator}
@@ -576,8 +576,7 @@ export default function CreateRule({
                 uuid={""}
                 archivedRules={archivedRules}
                 schemas={schemas}
-                schemaId={schemaId}
-                schemaName={schemas[schemaId].name}
+                schema={schema}
                 handleSelectedRuleChange={handleSelectedRuleChange}
                 handleAddRule={handleAddRule}
                 handleDeleteRule={handleDeleteRule}

@@ -41,7 +41,6 @@ const commands: CommandBuffer = {
 interface TestDialogProps {
   isOpenTest: boolean;
   sCentalRule: SCentralRule;
-  schemaName: string;
   testObjects: TestObject[];
   onCloseTest: () => void;
 }
@@ -53,7 +52,6 @@ interface TestDialogProps {
  * @param {TestDialogProps} props
  * @param {boolean} props.isOpenTest - If true, the dialog is open
  * @param {SCentralRule} props.sCentalRule - The SCentral rule that should be tested
- * @param {string} props.schemaName - The name of the schema of the rule
  * @param {InputSchema[]} props.testObjects - A list of Test Objects
  * @param {Function} props.onCloseTest - Called when the dialog should be closed
  * @returns {JSX.Element}
@@ -61,7 +59,7 @@ interface TestDialogProps {
 export default function TestDialog({
   isOpenTest,
   sCentalRule,
-  schemaName,
+
   testObjects,
   onCloseTest,
 }: TestDialogProps): JSX.Element {
@@ -103,31 +101,28 @@ export default function TestDialog({
   return (
     <Dialog open={isOpenTest} onClose={onCloseTest} maxWidth="md">
       <DialogTitle>
-        <Stack direction="row" spacing={20}>
-          <Typography>{`Apply rule: ${sCentalRule.name}`}</Typography>
-          <TextField
-            size="small"
-            select
-            label="Select a Test Object"
-            value={testObjectId}
-            onChange={(event) =>
-              handleTestObjectSelect(Number(event.target.value))
-            }
-            sx={{ width: 180 }}
-          >
-            {testObjects.map((testObject, index) => (
-              <MenuItem key={`TO_${index}`} value={index}>
-                {testObject.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Stack>
+        <TextField
+          size="small"
+          select
+          label="Select a Test Object"
+          value={testObjectId}
+          onChange={(event) =>
+            handleTestObjectSelect(Number(event.target.value))
+          }
+          sx={{ width: 180, ml: 35 }}
+        >
+          {testObjects.map((testObject, index) => (
+            <MenuItem key={`TO_${index}`} value={index}>
+              {testObject.name}
+            </MenuItem>
+          ))}
+        </TextField>
       </DialogTitle>
       <DialogContent>
         <Stack direction="row" spacing={2}>
           <Stack>
             <BorderBox
-              title={`Rule: ${schemaName}`}
+              title={`Rule: ${sCentalRule.name}`}
               sx={{ pl: 3, height: 300 }}
             >
               <SimpleRuleList

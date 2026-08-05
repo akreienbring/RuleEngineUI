@@ -3,6 +3,8 @@ import { defineConfig, esmExternalRequirePlugin } from "vite";
 import react from "@vitejs/plugin-react";
 import dts from "unplugin-dts/vite";
 
+const __dirname = import.meta.dirname;
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [

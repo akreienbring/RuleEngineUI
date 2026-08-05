@@ -14,28 +14,28 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^9.1.1",
-    "@mui/material": "^9.1.2",
+    "@mui/icons-material": "^9.3.0",
+    "@mui/material": "^9.3.0",
     "@omni-clm/genson-js": "^1.1.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-error-boundary": "^6.1.2",
     "rule-engine-js": "^1.0.7",
     "rule-engine-js-ui": "file:../rule-engine-js-ui"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^26.0.0",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "eslint": "^10.5.0",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "eslint": "^10.8.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.3",
-    "globals": "^17.7.0",
+    "globals": "^17.9.0",
     "sass-embedded": "^1.100.0",
-    "typescript": "~6.0.3",
-    "typescript-eslint": "^8.62.0",
-    "vite": "^8.0.16"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.66.0",
+    "vite": "^8.2.0"
   }
 }
